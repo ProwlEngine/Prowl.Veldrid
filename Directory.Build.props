@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
+        <!-- Not ideal. Preferably whatever project needs Veldrid stuff would supply a `Build` directory and we use that instead of hardcoding a path -->
         <RepositoryRootDirectory>../../../../Build/Veldrid/$(Configuration)/$(MSBuildProjectName)/</RepositoryRootDirectory>
 
         <OutputPath>$(RepositoryRootDirectory)bin/</OutputPath>
