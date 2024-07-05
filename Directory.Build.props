@@ -1,16 +1,16 @@
 <Project>
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-    <RepositoryRootDirectory>../../../Build/Veldrid/$(Configuration)/$(MSBuildProjectName)/</RepositoryRootDirectory>
+        <RepositoryRootDirectory>../../../Build/Veldrid/$(Configuration)/$(MSBuildProjectName)/</RepositoryRootDirectory>
 
-    <OutputPath>$(RepositoryRootDirectory)bin/</OutputPath>
-    <BaseIntermediateOutputPath>$(OutputPath)obj/</BaseIntermediateOutputPath>
-    <PackageOutputPath>$(OutputPath)Packages/</PackageOutputPath>
-  </PropertyGroup>
+        <OutputPath>$(RepositoryRootDirectory)bin/</OutputPath>
+        <BaseIntermediateOutputPath>$(OutputPath)obj/</BaseIntermediateOutputPath>
+        <PackageOutputPath>$(OutputPath)Packages/</PackageOutputPath>
+    </PropertyGroup>
 
     <PropertyGroup>
         <VorticeWindowsVersion>3.5.0</VorticeWindowsVersion>
