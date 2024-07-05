@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+
   <PropertyGroup>
     <TargetFramework>$(TargetFramework)-android</TargetFramework>
     <SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
-    <ApplicationId>dev.techpizza.VeldridTests</ApplicationId>
+    <ApplicationId>dev.Prowl.VeldridTests</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <DefineConstants>$(DefineConstants);TEST_VULKAN;TEST_OPENGLES</DefineConstants>
     <IsTestProject>false</IsTestProject>
     <XamarinGoogleGuavaListenableFutureOptOut>true</XamarinGoogleGuavaListenableFutureOptOut>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2662" />
     <PackageReference Include="Xamarin.AndroidX.RecyclerView" Version="1.3.2.5" />
@@ -22,7 +22,7 @@
     <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
     <PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.21" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\..\modules\veldrid-spirv\src\Veldrid.SPIRV\Veldrid.SPIRV.csproj" />
     <ProjectReference Include="..\Veldrid.RenderDoc\Veldrid.RenderDoc.csproj" />
@@ -31,7 +31,7 @@
     <ProjectReference Include="..\Veldrid.Utilities\Veldrid.Utilities.csproj" />
     <ProjectReference Include="..\Veldrid\Veldrid.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <AndroidAsset Include="..\Veldrid.Tests\xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -44,5 +44,5 @@
     <Compile Include="..\Veldrid.Tests\**\*.cs" />
     <Compile Remove="..\Veldrid.Tests\Program.cs" />
   </ItemGroup>
-  
+
 </Project>

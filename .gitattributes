@@ -3,21 +3,20 @@
 # use different line endings.
 * text=auto
 
-# Check out with crlf (Windows) line endings
-*.sln text eol=crlf
-*.csproj text eol=crlf
-*.cs text diff=csharp eol=crlf
-*.resx text eol=crlf
-*.vsixmanifest text eol=crlf
-packages.config text eol=crlf
-App.config text eol=crlf
-*.bat text eol=crlf
-*.cmd text eol=crlf
-*.snippet text eol=crlf
-*.manifest text eol=crlf
-*.licenseheader text eol=crlf
-
 # Check out with lf (UNIX) line endings
+*.sln text eol=lf
+*.csproj text eol=lf
+*.cs text diff=csharp eol=lf
+*.resx text eol=lf
+*.vsixmanifest text eol=lf
+packages.config text eol=lf
+App.config text eol=lf
+*.bat text eol=lf
+*.cmd text eol=lf
+*.snippet text eol=lf
+*.manifest text eol=lf
+*.licenseheader text eol=lf
+
 *.sh text eol=lf
 .gitignore text eol=lf
 .gitattributes text eol=lf

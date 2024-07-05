@@ -1,27 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup Condition="'$(UseStableVersions)' == 'true'">
-    <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
-    <PackageReference Include="Veldrid" Version="4.5.0" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(UseStableVersions)' == 'true'">
+        <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
+        <PackageReference Include="Veldrid" Version="4.5.0" />
+    </ItemGroup>
 
-  <ItemGroup Condition="'$(UseStableVersions)' != 'true'">
-    <ProjectReference Include="..\..\modules\veldrid-spirv\src\Veldrid.SPIRV\Veldrid.SPIRV.csproj" />
-    <ProjectReference Include="..\Veldrid\Veldrid.csproj" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(UseStableVersions)' != 'true'">
+        <ProjectReference Include="..\..\modules\veldrid-spirv\src\Veldrid.SPIRV\Veldrid.SPIRV.csproj" />
+        <ProjectReference Include="..\Veldrid\Veldrid.csproj" />
+    </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="$(MSBuildThisFileDirectory)runtimes\win-x64\native\openvr_api.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <PackagePath>runtimes/win-x64/native</PackagePath>
+            <Pack>true</Pack>
+        </Content>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)runtimes\win-x64\native\openvr_api.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PackagePath>runtimes/win-x64/native</PackagePath>
-      <Pack>true</Pack>
-    </Content>
-  </ItemGroup>
-  
-  <PropertyGroup>
-    <Description>Virtual Reality integration for Veldrid, supporting both OpenVR and Oculus SDK.</Description>
-    <PackageTags>VR Virual Reality OpenVR Oculus 3D Graphics Direct3D DirectX Vulkan OpenGL Core Standard Game</PackageTags>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Description>Virtual Reality integration for Veldrid, supporting both OpenVR and Oculus SDK.</Description>
+        <PackageTags>VR Virual Reality OpenVR Oculus 3D Graphics Direct3D DirectX Vulkan OpenGL Core Standard Game</PackageTags>
+    </PropertyGroup>
 
 </Project>

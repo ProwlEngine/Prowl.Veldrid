@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Description>Raw OpenGL bindings for .NET. Used by Veldrid for OpenGL interop.</Description>
-    <PackageTags>3D Graphics OpenGL Core Standard Game</PackageTags>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Description>Raw OpenGL bindings for .NET. Used by Veldrid for OpenGL interop.</Description>
+        <PackageTags>3D Graphics OpenGL Core Standard Game</PackageTags>
+    </PropertyGroup>
 
 </Project>
