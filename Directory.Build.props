@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <RepositoryRootDirectory>../../../Build/Veldrid/$(Configuration)/$(MSBuildProjectName)/</RepositoryRootDirectory>
+        <RepositoryRootDirectory>../../../../Build/Veldrid/$(Configuration)/$(MSBuildProjectName)/</RepositoryRootDirectory>
 
         <OutputPath>$(RepositoryRootDirectory)bin/</OutputPath>
         <BaseIntermediateOutputPath>$(OutputPath)obj/</BaseIntermediateOutputPath>
