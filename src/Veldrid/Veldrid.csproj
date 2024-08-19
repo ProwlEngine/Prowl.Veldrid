@@ -5,7 +5,7 @@
             TODO: Specifying the version here is required so that including the Veldrid.SPIRV package works.
             Why are we doing this and not using the version in modules? Because I don't want to compile the native libraries.
             Does this work? Yes.
-            Is this hacky? Definitely, but hopefully we won't need to do this when we move to a custom glslang release.
+            Is this hacky? Definitely, but hopefully we won't need to do this when we move to a custom compiler.
         -->
         <Version>4.8.0.0</Version>
         <AssemblyName>Veldrid</AssemblyName>
