@@ -4,9 +4,4 @@
         <PackageReference Include="Ultz.Native.SDL" Version="2.30.1" />
     </ItemGroup>
 
-    <PropertyGroup>
-        <Description>Raw SDL2 bindings for .NET. Used by Veldrid for window and input management.</Description>
-        <PackageTags>Core Standard Game SDL2 Window Input</PackageTags>
-    </PropertyGroup>
-
 </Project>
