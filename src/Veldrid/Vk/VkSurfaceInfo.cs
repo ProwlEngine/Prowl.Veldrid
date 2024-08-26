@@ -1,5 +1,5 @@
 ﻿using System;
-using TerraFX.Interop.Vulkan;
+using Vortice.Vulkan;
 
 namespace Veldrid.Vulkan
 {

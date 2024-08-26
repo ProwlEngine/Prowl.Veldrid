@@ -1,38 +1,19 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using TerraFX.Interop.Vulkan;
+using Vortice.Vulkan;
 
 namespace Veldrid.Vulkan
 {
-    using static VkBlendFactor;
-    using static VkBlendOp;
-    using static VkBorderColor;
-    using static VkCompareOp;
-    using static VkCullModeFlags;
-    using static VkDescriptorType;
-    using static VkFilter;
-    using static VkFormat;
-    using static VkImageType;
-    using static VkImageUsageFlags;
-    using static VkIndexType;
-    using static VkPolygonMode;
-    using static VkPrimitiveTopology;
-    using static VkSampleCountFlags;
-    using static VkSamplerAddressMode;
-    using static VkSamplerMipmapMode;
-    using static VkShaderStageFlags;
-    using static VkStencilOp;
-
     internal static partial class VkFormats
     {
         internal static VkSamplerAddressMode VdToVkSamplerAddressMode(SamplerAddressMode mode)
         {
             return mode switch
             {
-                SamplerAddressMode.Wrap => VK_SAMPLER_ADDRESS_MODE_REPEAT,
-                SamplerAddressMode.Mirror => VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT,
-                SamplerAddressMode.Clamp => VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-                SamplerAddressMode.Border => VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
+                SamplerAddressMode.Wrap => VkSamplerAddressMode.Repeat,
+                SamplerAddressMode.Mirror => VkSamplerAddressMode.MirroredRepeat,
+                SamplerAddressMode.Clamp => VkSamplerAddressMode.ClampToEdge,
+                SamplerAddressMode.Border => VkSamplerAddressMode.ClampToBorder,
                 _ => Illegal.Value<SamplerAddressMode, VkSamplerAddressMode>(),
             };
         }
@@ -46,49 +27,49 @@ namespace Veldrid.Vulkan
             switch (filter)
             {
                 case SamplerFilter.Anisotropic:
-                    minFilter = VK_FILTER_LINEAR;
-                    magFilter = VK_FILTER_LINEAR;
-                    mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+                    minFilter = VkFilter.Linear;
+                    magFilter = VkFilter.Linear;
+                    mipmapMode = VkSamplerMipmapMode.Linear;
                     break;
                 case SamplerFilter.MinPoint_MagPoint_MipPoint:
-                    minFilter = VK_FILTER_NEAREST;
-                    magFilter = VK_FILTER_NEAREST;
-                    mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+                    minFilter = VkFilter.Nearest;
+                    magFilter = VkFilter.Nearest;
+                    mipmapMode = VkSamplerMipmapMode.Nearest;
                     break;
                 case SamplerFilter.MinPoint_MagPoint_MipLinear:
-                    minFilter = VK_FILTER_NEAREST;
-                    magFilter = VK_FILTER_NEAREST;
-                    mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+                    minFilter = VkFilter.Nearest;
+                    magFilter = VkFilter.Nearest;
+                    mipmapMode = VkSamplerMipmapMode.Linear;
                     break;
                 case SamplerFilter.MinPoint_MagLinear_MipPoint:
-                    minFilter = VK_FILTER_NEAREST;
-                    magFilter = VK_FILTER_LINEAR;
-                    mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+                    minFilter = VkFilter.Nearest;
+                    magFilter = VkFilter.Linear;
+                    mipmapMode = VkSamplerMipmapMode.Nearest;
                     break;
                 case SamplerFilter.MinPoint_MagLinear_MipLinear:
-                    minFilter = VK_FILTER_NEAREST;
-                    magFilter = VK_FILTER_LINEAR;
-                    mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+                    minFilter = VkFilter.Nearest;
+                    magFilter = VkFilter.Linear;
+                    mipmapMode = VkSamplerMipmapMode.Linear;
                     break;
                 case SamplerFilter.MinLinear_MagPoint_MipPoint:
-                    minFilter = VK_FILTER_LINEAR;
-                    magFilter = VK_FILTER_NEAREST;
-                    mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+                    minFilter = VkFilter.Linear;
+                    magFilter = VkFilter.Nearest;
+                    mipmapMode = VkSamplerMipmapMode.Nearest;
                     break;
                 case SamplerFilter.MinLinear_MagPoint_MipLinear:
-                    minFilter = VK_FILTER_LINEAR;
-                    magFilter = VK_FILTER_NEAREST;
-                    mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+                    minFilter = VkFilter.Linear;
+                    magFilter = VkFilter.Nearest;
+                    mipmapMode = VkSamplerMipmapMode.Linear;
                     break;
                 case SamplerFilter.MinLinear_MagLinear_MipPoint:
-                    minFilter = VK_FILTER_LINEAR;
-                    magFilter = VK_FILTER_LINEAR;
-                    mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+                    minFilter = VkFilter.Linear;
+                    magFilter = VkFilter.Linear;
+                    mipmapMode = VkSamplerMipmapMode.Nearest;
                     break;
                 case SamplerFilter.MinLinear_MagLinear_MipLinear:
-                    minFilter = VK_FILTER_LINEAR;
-                    magFilter = VK_FILTER_LINEAR;
-                    mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+                    minFilter = VkFilter.Linear;
+                    magFilter = VkFilter.Linear;
+                    mipmapMode = VkSamplerMipmapMode.Linear;
                     break;
                 default:
                     Unsafe.SkipInit(out minFilter);
@@ -101,23 +82,23 @@ namespace Veldrid.Vulkan
 
         internal static VkImageUsageFlags VdToVkTextureUsage(TextureUsage vdUsage)
         {
-            VkImageUsageFlags vkUsage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+            VkImageUsageFlags vkUsage = VkImageUsageFlags.TransferDst | VkImageUsageFlags.TransferSrc;
             bool isDepthStencil = (vdUsage & TextureUsage.DepthStencil) == TextureUsage.DepthStencil;
             if ((vdUsage & TextureUsage.Sampled) == TextureUsage.Sampled)
             {
-                vkUsage |= VK_IMAGE_USAGE_SAMPLED_BIT;
+                vkUsage |= VkImageUsageFlags.Sampled;
             }
             if (isDepthStencil)
             {
-                vkUsage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+                vkUsage |= VkImageUsageFlags.DepthStencilAttachment;
             }
             if ((vdUsage & TextureUsage.RenderTarget) == TextureUsage.RenderTarget)
             {
-                vkUsage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+                vkUsage |= VkImageUsageFlags.ColorAttachment;
             }
             if ((vdUsage & TextureUsage.Storage) == TextureUsage.Storage)
             {
-                vkUsage |= VK_IMAGE_USAGE_STORAGE_BIT;
+                vkUsage |= VkImageUsageFlags.Storage;
             }
 
             return vkUsage;
@@ -127,9 +108,9 @@ namespace Veldrid.Vulkan
         {
             return type switch
             {
-                TextureType.Texture1D => VK_IMAGE_TYPE_1D,
-                TextureType.Texture2D => VK_IMAGE_TYPE_2D,
-                TextureType.Texture3D => VK_IMAGE_TYPE_3D,
+                TextureType.Texture1D => VkImageType.Image1D,
+                TextureType.Texture2D => VkImageType.Image2D,
+                TextureType.Texture3D => VkImageType.Image3D,
                 _ => Illegal.Value<TextureType, VkImageType>(),
             };
         }
@@ -141,16 +122,16 @@ namespace Veldrid.Vulkan
             switch (kind)
             {
                 case ResourceKind.UniformBuffer:
-                    return dynamicBinding ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    return dynamicBinding ? VkDescriptorType.UniformBufferDynamic : VkDescriptorType.UniformBuffer;
                 case ResourceKind.StructuredBufferReadWrite:
                 case ResourceKind.StructuredBufferReadOnly:
-                    return dynamicBinding ? VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+                    return dynamicBinding ? VkDescriptorType.StorageBufferDynamic : VkDescriptorType.StorageBuffer;
                 case ResourceKind.TextureReadOnly:
-                    return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+                    return VkDescriptorType.SampledImage;
                 case ResourceKind.TextureReadWrite:
-                    return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+                    return VkDescriptorType.StorageImage;
                 case ResourceKind.Sampler:
-                    return VK_DESCRIPTOR_TYPE_SAMPLER;
+                    return VkDescriptorType.Sampler;
                 default:
                     return Illegal.Value<ResourceKind, VkDescriptorType>();
             }
@@ -160,13 +141,13 @@ namespace Veldrid.Vulkan
         {
             return sampleCount switch
             {
-                TextureSampleCount.Count1 => VK_SAMPLE_COUNT_1_BIT,
-                TextureSampleCount.Count2 => VK_SAMPLE_COUNT_2_BIT,
-                TextureSampleCount.Count4 => VK_SAMPLE_COUNT_4_BIT,
-                TextureSampleCount.Count8 => VK_SAMPLE_COUNT_8_BIT,
-                TextureSampleCount.Count16 => VK_SAMPLE_COUNT_16_BIT,
-                TextureSampleCount.Count32 => VK_SAMPLE_COUNT_32_BIT,
-                TextureSampleCount.Count64 => VK_SAMPLE_COUNT_64_BIT,
+                TextureSampleCount.Count1 => VkSampleCountFlags.Count1,
+                TextureSampleCount.Count2 => VkSampleCountFlags.Count2,
+                TextureSampleCount.Count4 => VkSampleCountFlags.Count4,
+                TextureSampleCount.Count8 => VkSampleCountFlags.Count8,
+                TextureSampleCount.Count16 => VkSampleCountFlags.Count16,
+                TextureSampleCount.Count32 => VkSampleCountFlags.Count32,
+                TextureSampleCount.Count64 => VkSampleCountFlags.Count64,
                 _ => Illegal.Value<TextureSampleCount, VkSampleCountFlags>(),
             };
         }
@@ -175,14 +156,14 @@ namespace Veldrid.Vulkan
         {
             return op switch
             {
-                StencilOperation.Keep => VK_STENCIL_OP_KEEP,
-                StencilOperation.Zero => VK_STENCIL_OP_ZERO,
-                StencilOperation.Replace => VK_STENCIL_OP_REPLACE,
-                StencilOperation.IncrementAndClamp => VK_STENCIL_OP_INCREMENT_AND_CLAMP,
-                StencilOperation.DecrementAndClamp => VK_STENCIL_OP_DECREMENT_AND_CLAMP,
-                StencilOperation.Invert => VK_STENCIL_OP_INVERT,
-                StencilOperation.IncrementAndWrap => VK_STENCIL_OP_INCREMENT_AND_WRAP,
-                StencilOperation.DecrementAndWrap => VK_STENCIL_OP_DECREMENT_AND_WRAP,
+                StencilOperation.Keep => VkStencilOp.Keep,
+                StencilOperation.Zero => VkStencilOp.Zero,
+                StencilOperation.Replace => VkStencilOp.Replace,
+                StencilOperation.IncrementAndClamp => VkStencilOp.IncrementAndClamp,
+                StencilOperation.DecrementAndClamp => VkStencilOp.DecrementAndClamp,
+                StencilOperation.Invert => VkStencilOp.Invert,
+                StencilOperation.IncrementAndWrap => VkStencilOp.IncrementAndWrap,
+                StencilOperation.DecrementAndWrap => VkStencilOp.DecrementAndWrap,
                 _ => Illegal.Value<StencilOperation, VkStencilOp>(),
             };
         }
@@ -191,8 +172,8 @@ namespace Veldrid.Vulkan
         {
             return fillMode switch
             {
-                PolygonFillMode.Solid => VK_POLYGON_MODE_FILL,
-                PolygonFillMode.Wireframe => VK_POLYGON_MODE_LINE,
+                PolygonFillMode.Solid => VkPolygonMode.Fill,
+                PolygonFillMode.Wireframe => VkPolygonMode.Line,
                 _ => Illegal.Value<PolygonFillMode, VkPolygonMode>(),
             };
         }
@@ -201,9 +182,9 @@ namespace Veldrid.Vulkan
         {
             return cullMode switch
             {
-                FaceCullMode.Back => VK_CULL_MODE_BACK_BIT,
-                FaceCullMode.Front => VK_CULL_MODE_FRONT_BIT,
-                FaceCullMode.None => VK_CULL_MODE_NONE,
+                FaceCullMode.Back => VkCullModeFlags.Back,
+                FaceCullMode.Front => VkCullModeFlags.Front,
+                FaceCullMode.None => VkCullModeFlags.None,
                 _ => Illegal.Value<FaceCullMode, VkCullModeFlags>(),
             };
         }
@@ -212,11 +193,11 @@ namespace Veldrid.Vulkan
         {
             return func switch
             {
-                BlendFunction.Add => VK_BLEND_OP_ADD,
-                BlendFunction.Subtract => VK_BLEND_OP_SUBTRACT,
-                BlendFunction.ReverseSubtract => VK_BLEND_OP_REVERSE_SUBTRACT,
-                BlendFunction.Minimum => VK_BLEND_OP_MIN,
-                BlendFunction.Maximum => VK_BLEND_OP_MAX,
+                BlendFunction.Add => VkBlendOp.Add,
+                BlendFunction.Subtract => VkBlendOp.Subtract,
+                BlendFunction.ReverseSubtract => VkBlendOp.ReverseSubtract,
+                BlendFunction.Minimum => VkBlendOp.Min,
+                BlendFunction.Maximum => VkBlendOp.Max,
                 _ => Illegal.Value<BlendFunction, VkBlendOp>(),
             };
         }
@@ -226,13 +207,13 @@ namespace Veldrid.Vulkan
             VkColorComponentFlags flags = default;
 
             if ((mask & ColorWriteMask.Red) == ColorWriteMask.Red)
-                flags |= VkColorComponentFlags.VK_COLOR_COMPONENT_R_BIT;
+                flags |= VkColorComponentFlags.R;
             if ((mask & ColorWriteMask.Green) == ColorWriteMask.Green)
-                flags |= VkColorComponentFlags.VK_COLOR_COMPONENT_G_BIT;
+                flags |= VkColorComponentFlags.G;
             if ((mask & ColorWriteMask.Blue) == ColorWriteMask.Blue)
-                flags |= VkColorComponentFlags.VK_COLOR_COMPONENT_B_BIT;
+                flags |= VkColorComponentFlags.B;
             if ((mask & ColorWriteMask.Alpha) == ColorWriteMask.Alpha)
-                flags |= VkColorComponentFlags.VK_COLOR_COMPONENT_A_BIT;
+                flags |= VkColorComponentFlags.A;
 
             return flags;
         }
@@ -241,11 +222,11 @@ namespace Veldrid.Vulkan
         {
             return topology switch
             {
-                PrimitiveTopology.TriangleList => VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                PrimitiveTopology.TriangleStrip => VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-                PrimitiveTopology.LineList => VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-                PrimitiveTopology.LineStrip => VK_PRIMITIVE_TOPOLOGY_LINE_STRIP,
-                PrimitiveTopology.PointList => VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
+                PrimitiveTopology.TriangleList => VkPrimitiveTopology.TriangleList,
+                PrimitiveTopology.TriangleStrip => VkPrimitiveTopology.TriangleStrip,
+                PrimitiveTopology.LineList => VkPrimitiveTopology.LineList,
+                PrimitiveTopology.LineStrip => VkPrimitiveTopology.LineStrip,
+                PrimitiveTopology.PointList => VkPrimitiveTopology.PointList,
                 _ => Illegal.Value<PrimitiveTopology, VkPrimitiveTopology>(),
             };
         }
@@ -271,18 +252,18 @@ namespace Veldrid.Vulkan
         {
             return factor switch
             {
-                BlendFactor.Zero => VK_BLEND_FACTOR_ZERO,
-                BlendFactor.One => VK_BLEND_FACTOR_ONE,
-                BlendFactor.SourceAlpha => VK_BLEND_FACTOR_SRC_ALPHA,
-                BlendFactor.InverseSourceAlpha => VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-                BlendFactor.DestinationAlpha => VK_BLEND_FACTOR_DST_ALPHA,
-                BlendFactor.InverseDestinationAlpha => VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA,
-                BlendFactor.SourceColor => VK_BLEND_FACTOR_SRC_COLOR,
-                BlendFactor.InverseSourceColor => VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR,
-                BlendFactor.DestinationColor => VK_BLEND_FACTOR_DST_COLOR,
-                BlendFactor.InverseDestinationColor => VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR,
-                BlendFactor.BlendFactor => VK_BLEND_FACTOR_CONSTANT_COLOR,
-                BlendFactor.InverseBlendFactor => VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR,
+                BlendFactor.Zero => VkBlendFactor.Zero,
+                BlendFactor.One => VkBlendFactor.One,
+                BlendFactor.SourceAlpha => VkBlendFactor.SrcAlpha,
+                BlendFactor.InverseSourceAlpha => VkBlendFactor.OneMinusSrcAlpha,
+                BlendFactor.DestinationAlpha => VkBlendFactor.DstAlpha,
+                BlendFactor.InverseDestinationAlpha => VkBlendFactor.OneMinusDstAlpha,
+                BlendFactor.SourceColor => VkBlendFactor.SrcColor,
+                BlendFactor.InverseSourceColor => VkBlendFactor.OneMinusSrcColor,
+                BlendFactor.DestinationColor => VkBlendFactor.DstColor,
+                BlendFactor.InverseDestinationColor => VkBlendFactor.OneMinusDstColor,
+                BlendFactor.BlendFactor => VkBlendFactor.ConstantColor,
+                BlendFactor.InverseBlendFactor => VkBlendFactor.OneMinusConstantColor,
                 _ => Illegal.Value<BlendFactor, VkBlendFactor>(),
             };
         }
@@ -291,37 +272,37 @@ namespace Veldrid.Vulkan
         {
             return format switch
             {
-                VertexElementFormat.Float1 => VK_FORMAT_R32_SFLOAT,
-                VertexElementFormat.Float2 => VK_FORMAT_R32G32_SFLOAT,
-                VertexElementFormat.Float3 => VK_FORMAT_R32G32B32_SFLOAT,
-                VertexElementFormat.Float4 => VK_FORMAT_R32G32B32A32_SFLOAT,
-                VertexElementFormat.Byte2_Norm => VK_FORMAT_R8G8_UNORM,
-                VertexElementFormat.Byte2 => VK_FORMAT_R8G8_UINT,
-                VertexElementFormat.Byte4_Norm => VK_FORMAT_R8G8B8A8_UNORM,
-                VertexElementFormat.Byte4 => VK_FORMAT_R8G8B8A8_UINT,
-                VertexElementFormat.SByte2_Norm => VK_FORMAT_R8G8_SNORM,
-                VertexElementFormat.SByte2 => VK_FORMAT_R8G8_SINT,
-                VertexElementFormat.SByte4_Norm => VK_FORMAT_R8G8B8A8_SNORM,
-                VertexElementFormat.SByte4 => VK_FORMAT_R8G8B8A8_SINT,
-                VertexElementFormat.UShort2_Norm => VK_FORMAT_R16G16_UNORM,
-                VertexElementFormat.UShort2 => VK_FORMAT_R16G16_UINT,
-                VertexElementFormat.UShort4_Norm => VK_FORMAT_R16G16B16A16_UNORM,
-                VertexElementFormat.UShort4 => VK_FORMAT_R16G16B16A16_UINT,
-                VertexElementFormat.Short2_Norm => VK_FORMAT_R16G16_SNORM,
-                VertexElementFormat.Short2 => VK_FORMAT_R16G16_SINT,
-                VertexElementFormat.Short4_Norm => VK_FORMAT_R16G16B16A16_SNORM,
-                VertexElementFormat.Short4 => VK_FORMAT_R16G16B16A16_SINT,
-                VertexElementFormat.UInt1 => VK_FORMAT_R32_UINT,
-                VertexElementFormat.UInt2 => VK_FORMAT_R32G32_UINT,
-                VertexElementFormat.UInt3 => VK_FORMAT_R32G32B32_UINT,
-                VertexElementFormat.UInt4 => VK_FORMAT_R32G32B32A32_UINT,
-                VertexElementFormat.Int1 => VK_FORMAT_R32_SINT,
-                VertexElementFormat.Int2 => VK_FORMAT_R32G32_SINT,
-                VertexElementFormat.Int3 => VK_FORMAT_R32G32B32_SINT,
-                VertexElementFormat.Int4 => VK_FORMAT_R32G32B32A32_SINT,
-                VertexElementFormat.Half1 => VK_FORMAT_R16_SFLOAT,
-                VertexElementFormat.Half2 => VK_FORMAT_R16G16_SFLOAT,
-                VertexElementFormat.Half4 => VK_FORMAT_R16G16B16A16_SFLOAT,
+                VertexElementFormat.Float1 => VkFormat.R32Sfloat,
+                VertexElementFormat.Float2 => VkFormat.R32G32Sfloat,
+                VertexElementFormat.Float3 => VkFormat.R32G32B32Sfloat,
+                VertexElementFormat.Float4 => VkFormat.R32G32B32A32Sfloat,
+                VertexElementFormat.Byte2_Norm => VkFormat.R8G8Unorm,
+                VertexElementFormat.Byte2 => VkFormat.R8G8Uint,
+                VertexElementFormat.Byte4_Norm => VkFormat.R8G8B8A8Unorm,
+                VertexElementFormat.Byte4 => VkFormat.R8G8B8A8Uint,
+                VertexElementFormat.SByte2_Norm => VkFormat.R8G8Snorm,
+                VertexElementFormat.SByte2 => VkFormat.R8G8Sint,
+                VertexElementFormat.SByte4_Norm => VkFormat.R8G8B8A8Snorm,
+                VertexElementFormat.SByte4 => VkFormat.R8G8B8A8Sint,
+                VertexElementFormat.UShort2_Norm => VkFormat.R16G16Unorm,
+                VertexElementFormat.UShort2 => VkFormat.R16G16Uint,
+                VertexElementFormat.UShort4_Norm => VkFormat.R16G16B16A16Unorm,
+                VertexElementFormat.UShort4 => VkFormat.R16G16B16A16Uint,
+                VertexElementFormat.Short2_Norm => VkFormat.R16G16Snorm,
+                VertexElementFormat.Short2 => VkFormat.R16G16Sint,
+                VertexElementFormat.Short4_Norm => VkFormat.R16G16B16A16Snorm,
+                VertexElementFormat.Short4 => VkFormat.R16G16B16A16Sint,
+                VertexElementFormat.UInt1 => VkFormat.R32Uint,
+                VertexElementFormat.UInt2 => VkFormat.R32G32Uint,
+                VertexElementFormat.UInt3 => VkFormat.R32G32B32Uint,
+                VertexElementFormat.UInt4 => VkFormat.R32G32B32A32Uint,
+                VertexElementFormat.Int1 => VkFormat.R32Sint,
+                VertexElementFormat.Int2 => VkFormat.R32G32Sint,
+                VertexElementFormat.Int3 => VkFormat.R32G32B32Sint,
+                VertexElementFormat.Int4 => VkFormat.R32G32B32A32Sint,
+                VertexElementFormat.Half1 => VkFormat.R16Sfloat,
+                VertexElementFormat.Half2 => VkFormat.R16G16Sfloat,
+                VertexElementFormat.Half4 => VkFormat.R16G16B16A16Sfloat,
                 _ => Illegal.Value<VertexElementFormat, VkFormat>(),
             };
         }
@@ -331,22 +312,22 @@ namespace Veldrid.Vulkan
             VkShaderStageFlags ret = 0;
 
             if ((stage & ShaderStages.Vertex) == ShaderStages.Vertex)
-                ret |= VK_SHADER_STAGE_VERTEX_BIT;
+                ret |= VkShaderStageFlags.Vertex;
 
             if ((stage & ShaderStages.Geometry) == ShaderStages.Geometry)
-                ret |= VK_SHADER_STAGE_GEOMETRY_BIT;
+                ret |= VkShaderStageFlags.Geometry;
 
             if ((stage & ShaderStages.TessellationControl) == ShaderStages.TessellationControl)
-                ret |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+                ret |= VkShaderStageFlags.TessellationControl;
 
             if ((stage & ShaderStages.TessellationEvaluation) == ShaderStages.TessellationEvaluation)
-                ret |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+                ret |= VkShaderStageFlags.TessellationEvaluation;
 
             if ((stage & ShaderStages.Fragment) == ShaderStages.Fragment)
-                ret |= VK_SHADER_STAGE_FRAGMENT_BIT;
+                ret |= VkShaderStageFlags.Fragment;
 
             if ((stage & ShaderStages.Compute) == ShaderStages.Compute)
-                ret |= VK_SHADER_STAGE_COMPUTE_BIT;
+                ret |= VkShaderStageFlags.Compute;
 
             return ret;
         }
@@ -355,9 +336,9 @@ namespace Veldrid.Vulkan
         {
             return borderColor switch
             {
-                SamplerBorderColor.TransparentBlack => VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK,
-                SamplerBorderColor.OpaqueBlack => VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK,
-                SamplerBorderColor.OpaqueWhite => VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE,
+                SamplerBorderColor.TransparentBlack => VkBorderColor.FloatTransparentBlack,
+                SamplerBorderColor.OpaqueBlack => VkBorderColor.FloatOpaqueBlack,
+                SamplerBorderColor.OpaqueWhite => VkBorderColor.FloatOpaqueWhite,
                 _ => Illegal.Value<SamplerBorderColor, VkBorderColor>(),
             };
         }
@@ -366,8 +347,8 @@ namespace Veldrid.Vulkan
         {
             return format switch
             {
-                IndexFormat.UInt16 => VK_INDEX_TYPE_UINT16,
-                IndexFormat.UInt32 => VK_INDEX_TYPE_UINT32,
+                IndexFormat.UInt16 => VkIndexType.Uint16,
+                IndexFormat.UInt32 => VkIndexType.Uint32,
                 _ => Illegal.Value<IndexFormat, VkIndexType>(),
             };
         }
@@ -376,14 +357,14 @@ namespace Veldrid.Vulkan
         {
             return comparisonKind switch
             {
-                ComparisonKind.Never => VK_COMPARE_OP_NEVER,
-                ComparisonKind.Less => VK_COMPARE_OP_LESS,
-                ComparisonKind.Equal => VK_COMPARE_OP_EQUAL,
-                ComparisonKind.LessEqual => VK_COMPARE_OP_LESS_OR_EQUAL,
-                ComparisonKind.Greater => VK_COMPARE_OP_GREATER,
-                ComparisonKind.NotEqual => VK_COMPARE_OP_NOT_EQUAL,
-                ComparisonKind.GreaterEqual => VK_COMPARE_OP_GREATER_OR_EQUAL,
-                ComparisonKind.Always => VK_COMPARE_OP_ALWAYS,
+                ComparisonKind.Never => VkCompareOp.Never,
+                ComparisonKind.Less => VkCompareOp.Less,
+                ComparisonKind.Equal => VkCompareOp.Equal,
+                ComparisonKind.LessEqual => VkCompareOp.LessOrEqual,
+                ComparisonKind.Greater => VkCompareOp.Greater,
+                ComparisonKind.NotEqual => VkCompareOp.NotEqual,
+                ComparisonKind.GreaterEqual => VkCompareOp.GreaterOrEqual,
+                ComparisonKind.Always => VkCompareOp.Always,
                 _ => Illegal.Value<ComparisonKind, VkCompareOp>(),
             };
         }
@@ -392,62 +373,62 @@ namespace Veldrid.Vulkan
         {
             return vkFormat switch
             {
-                VK_FORMAT_R8_UNORM => PixelFormat.R8_UNorm,
-                VK_FORMAT_R8_SNORM => PixelFormat.R8_SNorm,
-                VK_FORMAT_R8_UINT => PixelFormat.R8_UInt,
-                VK_FORMAT_R8_SINT => PixelFormat.R8_SInt,
-                VK_FORMAT_R16_UNORM => PixelFormat.R16_UNorm,
-                VK_FORMAT_R16_SNORM => PixelFormat.R16_SNorm,
-                VK_FORMAT_R16_UINT => PixelFormat.R16_UInt,
-                VK_FORMAT_R16_SINT => PixelFormat.R16_SInt,
-                VK_FORMAT_R16_SFLOAT => PixelFormat.R16_Float,
-                VK_FORMAT_R32_UINT => PixelFormat.R32_UInt,
-                VK_FORMAT_R32_SINT => PixelFormat.R32_SInt,
-                VK_FORMAT_R32_SFLOAT or VK_FORMAT_D32_SFLOAT => PixelFormat.R32_Float,
-                VK_FORMAT_R8G8_UNORM => PixelFormat.R8_G8_UNorm,
-                VK_FORMAT_R8G8_SNORM => PixelFormat.R8_G8_SNorm,
-                VK_FORMAT_R8G8_UINT => PixelFormat.R8_G8_UInt,
-                VK_FORMAT_R8G8_SINT => PixelFormat.R8_G8_SInt,
-                VK_FORMAT_R16G16_UNORM => PixelFormat.R16_G16_UNorm,
-                VK_FORMAT_R16G16_SNORM => PixelFormat.R16_G16_SNorm,
-                VK_FORMAT_R16G16_UINT => PixelFormat.R16_G16_UInt,
-                VK_FORMAT_R16G16_SINT => PixelFormat.R16_G16_SInt,
-                VK_FORMAT_R16G16_SFLOAT => PixelFormat.R16_G16_Float,
-                VK_FORMAT_R32G32_UINT => PixelFormat.R32_G32_UInt,
-                VK_FORMAT_R32G32_SINT => PixelFormat.R32_G32_SInt,
-                VK_FORMAT_R32G32_SFLOAT => PixelFormat.R32_G32_Float,
-                VK_FORMAT_R8G8B8A8_UNORM => PixelFormat.R8_G8_B8_A8_UNorm,
-                VK_FORMAT_R8G8B8A8_SRGB => PixelFormat.R8_G8_B8_A8_UNorm_SRgb,
-                VK_FORMAT_B8G8R8A8_UNORM => PixelFormat.B8_G8_R8_A8_UNorm,
-                VK_FORMAT_B8G8R8A8_SRGB => PixelFormat.B8_G8_R8_A8_UNorm_SRgb,
-                VK_FORMAT_R8G8B8A8_SNORM => PixelFormat.R8_G8_B8_A8_SNorm,
-                VK_FORMAT_R8G8B8A8_UINT => PixelFormat.R8_G8_B8_A8_UInt,
-                VK_FORMAT_R8G8B8A8_SINT => PixelFormat.R8_G8_B8_A8_SInt,
-                VK_FORMAT_R16G16B16A16_UNORM => PixelFormat.R16_G16_B16_A16_UNorm,
-                VK_FORMAT_R16G16B16A16_SNORM => PixelFormat.R16_G16_B16_A16_SNorm,
-                VK_FORMAT_R16G16B16A16_UINT => PixelFormat.R16_G16_B16_A16_UInt,
-                VK_FORMAT_R16G16B16A16_SINT => PixelFormat.R16_G16_B16_A16_SInt,
-                VK_FORMAT_R16G16B16A16_SFLOAT => PixelFormat.R16_G16_B16_A16_Float,
-                VK_FORMAT_R32G32B32A32_UINT => PixelFormat.R32_G32_B32_A32_UInt,
-                VK_FORMAT_R32G32B32A32_SINT => PixelFormat.R32_G32_B32_A32_SInt,
-                VK_FORMAT_R32G32B32A32_SFLOAT => PixelFormat.R32_G32_B32_A32_Float,
-                VK_FORMAT_BC1_RGB_UNORM_BLOCK => PixelFormat.BC1_Rgb_UNorm,
-                VK_FORMAT_BC1_RGB_SRGB_BLOCK => PixelFormat.BC1_Rgb_UNorm_SRgb,
-                VK_FORMAT_BC1_RGBA_UNORM_BLOCK => PixelFormat.BC1_Rgba_UNorm,
-                VK_FORMAT_BC1_RGBA_SRGB_BLOCK => PixelFormat.BC1_Rgba_UNorm_SRgb,
-                VK_FORMAT_BC2_UNORM_BLOCK => PixelFormat.BC2_UNorm,
-                VK_FORMAT_BC2_SRGB_BLOCK => PixelFormat.BC2_UNorm_SRgb,
-                VK_FORMAT_BC3_UNORM_BLOCK => PixelFormat.BC3_UNorm,
-                VK_FORMAT_BC3_SRGB_BLOCK => PixelFormat.BC3_UNorm_SRgb,
-                VK_FORMAT_BC4_UNORM_BLOCK => PixelFormat.BC4_UNorm,
-                VK_FORMAT_BC4_SNORM_BLOCK => PixelFormat.BC4_SNorm,
-                VK_FORMAT_BC5_UNORM_BLOCK => PixelFormat.BC5_UNorm,
-                VK_FORMAT_BC5_SNORM_BLOCK => PixelFormat.BC5_SNorm,
-                VK_FORMAT_BC7_UNORM_BLOCK => PixelFormat.BC7_UNorm,
-                VK_FORMAT_BC7_SRGB_BLOCK => PixelFormat.BC7_UNorm_SRgb,
-                VK_FORMAT_A2B10G10R10_UNORM_PACK32 => PixelFormat.R10_G10_B10_A2_UNorm,
-                VK_FORMAT_A2B10G10R10_UINT_PACK32 => PixelFormat.R10_G10_B10_A2_UInt,
-                VK_FORMAT_B10G11R11_UFLOAT_PACK32 => PixelFormat.R11_G11_B10_Float,
+                VkFormat.R8Unorm => PixelFormat.R8_UNorm,
+                VkFormat.R8Snorm => PixelFormat.R8_SNorm,
+                VkFormat.R8Uint => PixelFormat.R8_UInt,
+                VkFormat.R8Sint => PixelFormat.R8_SInt,
+                VkFormat.R16Unorm => PixelFormat.R16_UNorm,
+                VkFormat.R16Snorm => PixelFormat.R16_SNorm,
+                VkFormat.R16Uint => PixelFormat.R16_UInt,
+                VkFormat.R16Sint => PixelFormat.R16_SInt,
+                VkFormat.R16Sfloat => PixelFormat.R16_Float,
+                VkFormat.R32Uint => PixelFormat.R32_UInt,
+                VkFormat.R32Sint => PixelFormat.R32_SInt,
+                VkFormat.R32Sfloat or VkFormat.D32Sfloat => PixelFormat.R32_Float,
+                VkFormat.R8G8Unorm => PixelFormat.R8_G8_UNorm,
+                VkFormat.R8G8Snorm => PixelFormat.R8_G8_SNorm,
+                VkFormat.R8G8Uint => PixelFormat.R8_G8_UInt,
+                VkFormat.R8G8Sint => PixelFormat.R8_G8_SInt,
+                VkFormat.R16G16Unorm => PixelFormat.R16_G16_UNorm,
+                VkFormat.R16G16Snorm => PixelFormat.R16_G16_SNorm,
+                VkFormat.R16G16Uint => PixelFormat.R16_G16_UInt,
+                VkFormat.R16G16Sint => PixelFormat.R16_G16_SInt,
+                VkFormat.R16G16Sfloat => PixelFormat.R16_G16_Float,
+                VkFormat.R32G32Uint => PixelFormat.R32_G32_UInt,
+                VkFormat.R32G32Sint => PixelFormat.R32_G32_SInt,
+                VkFormat.R32G32Sfloat => PixelFormat.R32_G32_Float,
+                VkFormat.R8G8B8A8Unorm => PixelFormat.R8_G8_B8_A8_UNorm,
+                VkFormat.R8G8B8A8Srgb => PixelFormat.R8_G8_B8_A8_UNorm_SRgb,
+                VkFormat.B8G8R8A8Unorm => PixelFormat.B8_G8_R8_A8_UNorm,
+                VkFormat.B8G8R8A8Srgb => PixelFormat.B8_G8_R8_A8_UNorm_SRgb,
+                VkFormat.R8G8B8A8Snorm => PixelFormat.R8_G8_B8_A8_SNorm,
+                VkFormat.R8G8B8A8Uint => PixelFormat.R8_G8_B8_A8_UInt,
+                VkFormat.R8G8B8A8Sint => PixelFormat.R8_G8_B8_A8_SInt,
+                VkFormat.R16G16B16A16Unorm => PixelFormat.R16_G16_B16_A16_UNorm,
+                VkFormat.R16G16B16A16Snorm => PixelFormat.R16_G16_B16_A16_SNorm,
+                VkFormat.R16G16B16A16Uint => PixelFormat.R16_G16_B16_A16_UInt,
+                VkFormat.R16G16B16A16Sint => PixelFormat.R16_G16_B16_A16_SInt,
+                VkFormat.R16G16B16A16Sfloat => PixelFormat.R16_G16_B16_A16_Float,
+                VkFormat.R32G32B32A32Uint => PixelFormat.R32_G32_B32_A32_UInt,
+                VkFormat.R32G32B32A32Sint => PixelFormat.R32_G32_B32_A32_SInt,
+                VkFormat.R32G32B32A32Sfloat => PixelFormat.R32_G32_B32_A32_Float,
+                VkFormat.Bc1RgbUnormBlock => PixelFormat.BC1_Rgb_UNorm,
+                VkFormat.Bc1RgbSrgbBlock => PixelFormat.BC1_Rgb_UNorm_SRgb,
+                VkFormat.Bc1RgbaUnormBlock => PixelFormat.BC1_Rgba_UNorm,
+                VkFormat.Bc1RgbaSrgbBlock => PixelFormat.BC1_Rgba_UNorm_SRgb,
+                VkFormat.Bc2UnormBlock => PixelFormat.BC2_UNorm,
+                VkFormat.Bc2SrgbBlock => PixelFormat.BC2_UNorm_SRgb,
+                VkFormat.Bc3UnormBlock => PixelFormat.BC3_UNorm,
+                VkFormat.Bc3SrgbBlock => PixelFormat.BC3_UNorm_SRgb,
+                VkFormat.Bc4UnormBlock => PixelFormat.BC4_UNorm,
+                VkFormat.Bc4SnormBlock => PixelFormat.BC4_SNorm,
+                VkFormat.Bc5UnormBlock => PixelFormat.BC5_UNorm,
+                VkFormat.Bc5SnormBlock => PixelFormat.BC5_SNorm,
+                VkFormat.Bc7UnormBlock => PixelFormat.BC7_UNorm,
+                VkFormat.Bc7SrgbBlock => PixelFormat.BC7_UNorm_SRgb,
+                VkFormat.A2B10G10R10UnormPack32 => PixelFormat.R10_G10_B10_A2_UNorm,
+                VkFormat.A2B10G10R10UintPack32 => PixelFormat.R10_G10_B10_A2_UInt,
+                VkFormat.B10G11R11UfloatPack32 => PixelFormat.R11_G11_B10_Float,
                 _ => Illegal.Value<VkFormat, PixelFormat>(),
             };
         }

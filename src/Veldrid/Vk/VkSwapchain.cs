@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using TerraFX.Interop.Vulkan;
-using static TerraFX.Interop.Vulkan.Vulkan;
-using static TerraFX.Interop.Vulkan.VkFormat;
+using Vortice.Vulkan;
+using static Vortice.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
-using VulkanFence = TerraFX.Interop.Vulkan.VkFence;
+using VulkanFence = Vortice.Vulkan.VkFence;
 
 namespace Veldrid.Vulkan
 {
@@ -62,7 +61,7 @@ namespace Veldrid.Vulkan
             _swapchainSource = description.Source;
             _colorSrgb = description.ColorSrgb;
 
-            if (existingSurface == VkSurfaceKHR.NULL)
+            if (existingSurface == VkSurfaceKHR.Null)
             {
                 _surface = VkSurfaceUtil.CreateSurface(gd.Instance, _swapchainSource);
             }
@@ -88,7 +87,7 @@ namespace Veldrid.Vulkan
 
             VkFenceCreateInfo fenceCI = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_FENCE_CREATE_INFO
+                sType = VkStructureType.FenceCreateInfo
             };
 
             VulkanFence imageAvailableFence;
@@ -127,12 +126,12 @@ namespace Veldrid.Vulkan
             _framebuffer.SetImageIndex(imageIndex);
             _currentImageIndex = imageIndex;
 
-            if (result == VkResult.VK_ERROR_OUT_OF_DATE_KHR || result == VkResult.VK_SUBOPTIMAL_KHR)
+            if (result == VkResult.ErrorOutOfDateKHR || result == VkResult.SuboptimalKHR)
             {
                 CreateSwapchain(_framebuffer.Width, _framebuffer.Height);
                 return false;
             }
-            else if (result != VkResult.VK_SUCCESS)
+            else if (result != VkResult.Success)
             {
                 throw new VeldridException("Could not acquire next image from the Vulkan swapchain.");
             }
@@ -158,7 +157,7 @@ namespace Veldrid.Vulkan
             // Obtain the surface capabilities first -- this will indicate whether the surface has been lost.
             VkSurfaceCapabilitiesKHR surfaceCapabilities;
             VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_gd.PhysicalDevice, _surface, &surfaceCapabilities);
-            if (result == VkResult.VK_ERROR_SURFACE_LOST_KHR)
+            if (result == VkResult.ErrorSurfaceLostKHR)
             {
                 throw new VeldridException($"The Swapchain's underlying surface has been lost.");
             }
@@ -169,7 +168,7 @@ namespace Veldrid.Vulkan
                 return false;
             }
 
-            if (_deviceSwapchain != VkSwapchainKHR.NULL)
+            if (_deviceSwapchain != VkSwapchainKHR.Null)
             {
                 _gd.WaitForIdle();
             }
@@ -193,13 +192,13 @@ namespace Veldrid.Vulkan
             if (formats.Length == 1 && formats[0].format == VK_FORMAT_UNDEFINED)
             {
                 surfaceFormat.format = desiredFormat;
-                surfaceFormat.colorSpace = VkColorSpaceKHR.VK_COLORSPACE_SRGB_NONLINEAR_KHR;
+                surfaceFormat.colorSpace = VkColorSpaceKHR.SrgbNonLinear;
             }
             else
             {
                 foreach (VkSurfaceFormatKHR format in formats)
                 {
-                    if (format.colorSpace == VkColorSpaceKHR.VK_COLORSPACE_SRGB_NONLINEAR_KHR && format.format == desiredFormat)
+                    if (format.colorSpace == VkColorSpaceKHR.SrgbNonLinear && format.format == desiredFormat)
                     {
                         surfaceFormat = format;
                         break;
@@ -226,24 +225,24 @@ namespace Veldrid.Vulkan
                 CheckResult(result);
             }
 
-            VkPresentModeKHR presentMode = VkPresentModeKHR.VK_PRESENT_MODE_FIFO_KHR;
+            VkPresentModeKHR presentMode = VkPresentModeKHR.Fifo;
 
             if (_syncToVBlank)
             {
-                if (presentModes.Contains(VkPresentModeKHR.VK_PRESENT_MODE_FIFO_RELAXED_KHR))
+                if (presentModes.Contains(VkPresentModeKHR.FifoRelaxed))
                 {
-                    presentMode = VkPresentModeKHR.VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+                    presentMode = VkPresentModeKHR.FifoRelaxed;
                 }
             }
             else
             {
-                if (presentModes.Contains(VkPresentModeKHR.VK_PRESENT_MODE_MAILBOX_KHR))
+                if (presentModes.Contains(VkPresentModeKHR.Mailbox))
                 {
-                    presentMode = VkPresentModeKHR.VK_PRESENT_MODE_MAILBOX_KHR;
+                    presentMode = VkPresentModeKHR.Mailbox;
                 }
-                else if (presentModes.Contains(VkPresentModeKHR.VK_PRESENT_MODE_IMMEDIATE_KHR))
+                else if (presentModes.Contains(VkPresentModeKHR.Immediate))
                 {
-                    presentMode = VkPresentModeKHR.VK_PRESENT_MODE_IMMEDIATE_KHR;
+                    presentMode = VkPresentModeKHR.Immediate;
                 }
             }
 
@@ -254,7 +253,7 @@ namespace Veldrid.Vulkan
             uint clampedHeight = Util.Clamp(height, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
             VkSwapchainCreateInfoKHR swapchainCI = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+                sType = VkStructureType.SwapchainCreateInfoKHR,
                 surface = _surface,
                 presentMode = presentMode,
                 imageFormat = surfaceFormat.format,
@@ -262,25 +261,25 @@ namespace Veldrid.Vulkan
                 imageExtent = new VkExtent2D() { width = clampedWidth, height = clampedHeight },
                 minImageCount = imageCount,
                 imageArrayLayers = 1,
-                imageUsage = VkImageUsageFlags.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VkImageUsageFlags.VK_IMAGE_USAGE_TRANSFER_DST_BIT
+                imageUsage = VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransferDst
             };
 
             uint* queueFamilyIndices = stackalloc uint[] { _gd.GraphicsQueueIndex, _gd.PresentQueueIndex };
 
             if (_gd.GraphicsQueueIndex != _gd.PresentQueueIndex)
             {
-                swapchainCI.imageSharingMode = VkSharingMode.VK_SHARING_MODE_CONCURRENT;
+                swapchainCI.imageSharingMode = VkSharingMode.Concurrent;
                 swapchainCI.queueFamilyIndexCount = 2;
                 swapchainCI.pQueueFamilyIndices = queueFamilyIndices;
             }
             else
             {
-                swapchainCI.imageSharingMode = VkSharingMode.VK_SHARING_MODE_EXCLUSIVE;
+                swapchainCI.imageSharingMode = VkSharingMode.Exclusive;
                 swapchainCI.queueFamilyIndexCount = 0;
             }
 
-            swapchainCI.preTransform = VkSurfaceTransformFlagsKHR.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-            swapchainCI.compositeAlpha = VkCompositeAlphaFlagsKHR.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+            swapchainCI.preTransform = VkSurfaceTransformFlagsKHR.Identity;
+            swapchainCI.compositeAlpha = VkCompositeAlphaFlagsKHR.Opaque;
             swapchainCI.clipped = (VkBool32)true;
 
             VkSwapchainKHR oldSwapchain = _deviceSwapchain;
@@ -291,7 +290,7 @@ namespace Veldrid.Vulkan
             CheckResult(result);
             _deviceSwapchain = deviceSwapchain;
 
-            if (oldSwapchain != VkSwapchainKHR.NULL)
+            if (oldSwapchain != VkSwapchainKHR.Null)
             {
                 vkDestroySwapchainKHR(_gd.Device, oldSwapchain, null);
             }
@@ -322,14 +321,14 @@ namespace Veldrid.Vulkan
 
         private bool QueueSupportsPresent(uint queueFamilyIndex, VkSurfaceKHR surface)
         {
-            uint supported;
+            VkBool32 supported;
             VkResult result = vkGetPhysicalDeviceSurfaceSupportKHR(
                 _gd.PhysicalDevice,
                 queueFamilyIndex,
                 surface,
                 &supported);
             CheckResult(result);
-            return (VkBool32)supported;
+            return supported;
         }
 
         public override void Dispose()

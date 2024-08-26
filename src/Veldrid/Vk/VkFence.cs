@@ -1,6 +1,6 @@
-﻿using TerraFX.Interop.Vulkan;
-using static TerraFX.Interop.Vulkan.Vulkan;
-using VulkanFence = TerraFX.Interop.Vulkan.VkFence;
+﻿using Vortice.Vulkan;
+using static Vortice.Vulkan.Vulkan;
+using VulkanFence = Vortice.Vulkan.VkFence;
 
 namespace Veldrid.Vulkan
 {
@@ -9,7 +9,7 @@ namespace Veldrid.Vulkan
         private readonly VkGraphicsDevice _gd;
         private VulkanFence _fence;
         private string? _name;
-        
+
         public ResourceRefCount RefCount { get; }
 
         public VulkanFence DeviceFence => _fence;
@@ -19,8 +19,8 @@ namespace Veldrid.Vulkan
             _gd = gd;
             VkFenceCreateInfo fenceCI = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-                flags = signaled ? VkFenceCreateFlags.VK_FENCE_CREATE_SIGNALED_BIT : 0
+                sType = VkStructureType.FenceCreateInfo,
+                flags = signaled ? VkFenceCreateFlags.Signaled : 0
             };
             VulkanFence fence;
             VkResult result = vkCreateFence(_gd.Device, &fenceCI, null, &fence);
@@ -35,7 +35,7 @@ namespace Veldrid.Vulkan
             _gd.ResetFence(this);
         }
 
-        public override bool Signaled => vkGetFenceStatus(_gd.Device, _fence) == VkResult.VK_SUCCESS;
+        public override bool Signaled => vkGetFenceStatus(_gd.Device, _fence) == VkResult.Success;
         public override bool IsDisposed => RefCount.IsDisposed;
 
         public override string? Name

@@ -7,10 +7,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using TerraFX.Interop.Vulkan;
-using static TerraFX.Interop.Vulkan.Vulkan;
+
+using Vortice.Vulkan;
+using static Vortice.Vulkan.Vulkan;
+
 using static Veldrid.Vulkan.VulkanUtil;
-using VulkanBuffer = TerraFX.Interop.Vulkan.VkBuffer;
+
+using VulkanBuffer = Vortice.Vulkan.VkBuffer;
 
 namespace Veldrid.Vulkan
 {
@@ -52,8 +55,8 @@ namespace Veldrid.Vulkan
                 size,
                 alignment,
                 false,
-                VkImage.NULL,
-                VulkanBuffer.NULL);
+                VkImage.Null,
+                VulkanBuffer.Null);
         }
 
         public VkMemoryBlock Allocate(
@@ -81,7 +84,7 @@ namespace Veldrid.Vulkan
             if (dedicated || alignedSize >= minDedicatedAllocationSize)
             {
                 ulong dedicatedSize;
-                if (dedicatedImage == VkImage.NULL && dedicatedBuffer == VulkanBuffer.NULL)
+                if (dedicatedImage == VkImage.Null && dedicatedBuffer == VulkanBuffer.Null)
                 {
                     // Round up to the nearest multiple of bufferImageGranularity.
                     dedicatedSize = ((alignedSize + _bufferImageGranularity - 1) / _bufferImageGranularity) * _bufferImageGranularity;
@@ -94,7 +97,7 @@ namespace Veldrid.Vulkan
 
                 VkMemoryAllocateInfo allocateInfo = new()
                 {
-                    sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+                    sType = VkStructureType.MemoryAllocateInfo,
                     allocationSize = dedicatedSize,
                     memoryTypeIndex = memoryTypeIndex
                 };
@@ -104,7 +107,7 @@ namespace Veldrid.Vulkan
                 {
                     dedicatedAI = new VkMemoryDedicatedAllocateInfo()
                     {
-                        sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO,
+                        sType = VkStructureType.MemoryDedicatedAllocateInfo,
                         buffer = dedicatedBuffer,
                         image = dedicatedImage
                     };
@@ -113,7 +116,7 @@ namespace Veldrid.Vulkan
 
                 VkDeviceMemory memory;
                 VkResult allocationResult = vkAllocateMemory(_device, &allocateInfo, null, &memory);
-                if (allocationResult != VkResult.VK_SUCCESS)
+                if (allocationResult != VkResult.Success)
                 {
                     throw new VeldridException("Unable to allocate sufficient Vulkan memory.");
                 }
@@ -122,7 +125,7 @@ namespace Veldrid.Vulkan
                 if (persistentMapped)
                 {
                     VkResult mapResult = vkMapMemory(_device, memory, 0, dedicatedSize, 0, &mappedPtr);
-                    if (mapResult != VkResult.VK_SUCCESS)
+                    if (mapResult != VkResult.Success)
                     {
                         throw new VeldridException("Unable to map newly-allocated Vulkan memory.");
                     }
@@ -283,7 +286,7 @@ namespace Veldrid.Vulkan
 
                 VkMemoryAllocateInfo memoryAI = new()
                 {
-                    sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+                    sType = VkStructureType.MemoryAllocateInfo,
                     allocationSize = _totalMemorySize,
                     memoryTypeIndex = _memoryTypeIndex
                 };
@@ -428,7 +431,7 @@ namespace Veldrid.Vulkan
                 Span<VkMemoryBlock> freeBlocks = CollectionsMarshal.AsSpan(_freeBlocks);
 
                 // The free block list should always be sorted by offset.
-                // List mutations done by this algorithm must preserve order. 
+                // List mutations done by this algorithm must preserve order.
 
                 int precedingBlock = FindPrecedingBlockIndex(freeBlocks, block.Offset);
                 if (precedingBlock != -1)
@@ -659,7 +662,7 @@ namespace Veldrid.Vulkan
 
         private string GetDebuggerDisplay()
         {
-            return $"[Mem:{DeviceMemory.Value:x}] Off:{Offset}, Size:{Size}, End:{Offset + Size}";
+            return $"[Mem:{DeviceMemory.Handle:x}] Off:{Offset}, Size:{Size}, End:{Offset + Size}";
         }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using TerraFX.Interop.Vulkan;
-using static TerraFX.Interop.Vulkan.Vulkan;
-using static TerraFX.Interop.Vulkan.VkImageLayout;
-using static TerraFX.Interop.Vulkan.VkAccessFlags;
-using static TerraFX.Interop.Vulkan.VkPipelineStageFlags;
+using Vortice.Vulkan;
+using static Vortice.Vulkan.Vulkan;
 
 namespace Veldrid.Vulkan
 {
@@ -12,7 +9,7 @@ namespace Veldrid.Vulkan
     {
         public static void CheckResult(VkResult result)
         {
-            if (result != VkResult.VK_SUCCESS)
+            if (result != VkResult.Success)
             {
                 ThrowResult(result);
             }
@@ -20,8 +17,8 @@ namespace Veldrid.Vulkan
 
         public static void ThrowResult(VkResult result)
         {
-            if (result == VkResult.VK_ERROR_OUT_OF_DEVICE_MEMORY ||
-                result == VkResult.VK_ERROR_OUT_OF_HOST_MEMORY)
+            if (result == VkResult.ErrorOutOfDeviceMemory ||
+                result == VkResult.ErrorOutOfHostMemory)
             {
                 throw new VeldridOutOfMemoryException(GetExceptionMessage(result));
             }
@@ -72,8 +69,7 @@ namespace Veldrid.Vulkan
 
                 for (int i = 0; i < propCount; i++)
                 {
-                    ReadOnlySpan<sbyte> layerName = propPtr[i].layerName;
-                    ret[i] = Util.GetString(layerName);
+                    ret[i] = Util.GetString(propPtr[i].layerName);
                 }
             }
 
@@ -83,8 +79,8 @@ namespace Veldrid.Vulkan
         public static string[] EnumerateInstanceExtensions()
         {
             uint propCount = 0;
-            VkResult result = vkEnumerateInstanceExtensionProperties((sbyte*)null, &propCount, null);
-            if (result != VkResult.VK_SUCCESS)
+            VkResult result = vkEnumerateInstanceExtensionProperties((byte*)null, &propCount, null);
+            if (result != VkResult.Success)
             {
                 return Array.Empty<string>();
             }
@@ -99,12 +95,11 @@ namespace Veldrid.Vulkan
 
             fixed (VkExtensionProperties* propPtr = props)
             {
-                vkEnumerateInstanceExtensionProperties((sbyte*)null, &propCount, propPtr);
+                vkEnumerateInstanceExtensionProperties((byte*)null, &propCount, propPtr);
 
                 for (int i = 0; i < propCount; i++)
                 {
-                    ReadOnlySpan<sbyte> extensionName = propPtr[i].extensionName;
-                    ret[i] = Util.GetString(extensionName);
+                    ret[i] = Util.GetString(propPtr[i].extensionName);
                 }
             }
 
@@ -118,7 +113,7 @@ namespace Veldrid.Vulkan
             Util.GetNullTerminatedUtf8(name, ref byteBuffer);
             fixed (byte* utf8Ptr = byteBuffer)
             {
-                return (IntPtr)vkGetInstanceProcAddr(instance, (sbyte*)utf8Ptr);
+                return (IntPtr)vkGetInstanceProcAddr(instance, (byte*)utf8Ptr);
             }
         }
 
@@ -136,7 +131,7 @@ namespace Veldrid.Vulkan
             Debug.Assert(oldLayout != newLayout);
             VkImageMemoryBarrier barrier = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                sType = VkStructureType.ImageMemoryBarrier,
                 oldLayout = oldLayout,
                 newLayout = newLayout,
                 srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,

@@ -5,11 +5,14 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using TerraFX.Interop.Vulkan;
-using static TerraFX.Interop.Vulkan.Vulkan;
+
+using Vortice.Vulkan;
+using static Vortice.Vulkan.Vulkan;
+
 using static Veldrid.Vulkan.VulkanUtil;
-using VkImageLayout = TerraFX.Interop.Vulkan.VkImageLayout;
-using VulkanBuffer = TerraFX.Interop.Vulkan.VkBuffer;
+
+using VkImageLayout = Vortice.Vulkan.VkImageLayout;
+using VulkanBuffer = Vortice.Vulkan.VkBuffer;
 
 namespace Veldrid.Vulkan
 {
@@ -73,14 +76,14 @@ namespace Veldrid.Vulkan
             _gd = gd;
             VkCommandPoolCreateInfo poolCI = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-                flags = VkCommandPoolCreateFlags.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+                sType = VkStructureType.CommandPoolCreateInfo,
+                flags = VkCommandPoolCreateFlags.ResetCommandBuffer,
                 queueFamilyIndex = gd.GraphicsQueueIndex
             };
 
             if (description.Transient)
             {
-                poolCI.flags |= VkCommandPoolCreateFlags.VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+                poolCI.flags |= VkCommandPoolCreateFlags.Transient;
             }
 
             VkCommandPool pool;
@@ -107,10 +110,10 @@ namespace Veldrid.Vulkan
 
             VkCommandBufferAllocateInfo cbAI = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                sType = VkStructureType.CommandBufferAllocateInfo,
                 commandPool = _pool,
                 commandBufferCount = 1,
-                level = VkCommandBufferLevel.VK_COMMAND_BUFFER_LEVEL_PRIMARY
+                level = VkCommandBufferLevel.Primary
             };
             VkCommandBuffer cb;
             VkResult result = vkAllocateCommandBuffers(_gd.Device, &cbAI, &cb);
@@ -119,8 +122,8 @@ namespace Veldrid.Vulkan
             if (_gd.DebugMarkerEnabled)
             {
                 _gd.SetDebugMarkerName(
-                    VkDebugReportObjectTypeEXT.VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                    (ulong)cb.Value,
+                    VkDebugReportObjectTypeEXT.CommandBuffer,
+                    (ulong)cb.Handle,
                     _name);
             }
 
@@ -186,7 +189,7 @@ namespace Veldrid.Vulkan
             {
                 _commandBufferEnded = false;
 
-                if (_cb == VkCommandBuffer.NULL)
+                if (_cb == VkCommandBuffer.Null)
                 {
                     _cb = GetNextCommandBuffer();
                 }
@@ -206,8 +209,8 @@ namespace Veldrid.Vulkan
 
             VkCommandBufferBeginInfo beginInfo = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-                flags = VkCommandBufferUsageFlags.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+                sType = VkStructureType.CommandBufferBeginInfo,
+                flags = VkCommandBufferUsageFlags.OneTimeSubmit
             };
             VkResult result = vkBeginCommandBuffer(_cb, &beginInfo);
             CheckResult(result);
@@ -234,12 +237,12 @@ namespace Veldrid.Vulkan
                 color = Unsafe.BitCast<RgbaFloat, VkClearColorValue>(clearColor)
             };
 
-            if (_activeRenderPass != VkRenderPass.NULL)
+            if (_activeRenderPass != VkRenderPass.Null)
             {
                 VkClearAttachment clearAttachment = new()
                 {
                     colorAttachment = index,
-                    aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
+                    aspectMask = VkImageAspectFlags.Color,
                     clearValue = clearValue
                 };
 
@@ -269,18 +272,14 @@ namespace Veldrid.Vulkan
         {
             VkClearValue clearValue = new()
             {
-                depthStencil = new VkClearDepthStencilValue()
-                {
-                    depth = depth,
-                    stencil = stencil
-                }
+                depthStencil = new VkClearDepthStencilValue(depth, stencil)
             };
 
-            if (_activeRenderPass != VkRenderPass.NULL)
+            if (_activeRenderPass != VkRenderPass.Null)
             {
                 VkImageAspectFlags aspect = FormatHelpers.IsStencilFormat(_currentFramebuffer!.DepthTarget!.Value.Target.Format)
-                    ? VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT | VkImageAspectFlags.VK_IMAGE_ASPECT_STENCIL_BIT
-                    : VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT;
+                    ? VkImageAspectFlags.Depth | VkImageAspectFlags.Stencil
+                    : VkImageAspectFlags.Depth;
                 VkClearAttachment clearAttachment = new()
                 {
                     aspectMask = aspect,
@@ -417,8 +416,8 @@ namespace Veldrid.Vulkan
             int resourceSetCount = (int)pipeline.ResourceSetCount;
 
             VkPipelineBindPoint bindPoint = pipeline.IsComputePipeline
-                ? VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_COMPUTE
-                : VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS;
+                ? VkPipelineBindPoint.Compute
+                : VkPipelineBindPoint.Graphics;
 
             VkDescriptorSet* descriptorSets = stackalloc VkDescriptorSet[resourceSetCount];
             uint* dynamicOffsets = stackalloc uint[pipeline.DynamicOffsetsCount];
@@ -503,8 +502,8 @@ namespace Veldrid.Vulkan
                 VkResourceSet vkSet = Util.AssertSubtype<ResourceSet, VkResourceSet>(
                     _currentComputeResourceSets[currentSlot].Set);
 
-                TransitionImages(vkSet.SampledTextures, VkImageLayout.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-                TransitionImages(vkSet.StorageTextures, VkImageLayout.VK_IMAGE_LAYOUT_GENERAL);
+                TransitionImages(vkSet.SampledTextures, VkImageLayout.ShaderReadOnlyOptimal);
+                TransitionImages(vkSet.StorageTextures, VkImageLayout.General);
 
                 for (int texIdx = 0; texIdx < vkSet.StorageTextures.Count; texIdx++)
                 {
@@ -538,8 +537,8 @@ namespace Veldrid.Vulkan
             EnsureNoRenderPass();
 
             VkImageAspectFlags aspectFlags = ((source.Usage & TextureUsage.DepthStencil) == TextureUsage.DepthStencil)
-                ? VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT | VkImageAspectFlags.VK_IMAGE_ASPECT_STENCIL_BIT
-                : VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT;
+                ? VkImageAspectFlags.Depth | VkImageAspectFlags.Stencil
+                : VkImageAspectFlags.Color;
             VkImageResolve region = new()
             {
                 extent = new VkExtent3D() { width = source.Width, height = source.Height, depth = source.Depth },
@@ -547,15 +546,15 @@ namespace Veldrid.Vulkan
                 dstSubresource = new VkImageSubresourceLayers() { layerCount = 1, aspectMask = aspectFlags }
             };
 
-            vkSource.TransitionImageLayout(_cb, 0, 1, 0, 1, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-            vkDestination.TransitionImageLayout(_cb, 0, 1, 0, 1, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+            vkSource.TransitionImageLayout(_cb, 0, 1, 0, 1, VkImageLayout.TransferSrcOptimal);
+            vkDestination.TransitionImageLayout(_cb, 0, 1, 0, 1, VkImageLayout.TransferDstOptimal);
 
             vkCmdResolveImage(
                 _cb,
                 vkSource.OptimalDeviceImage,
-                VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                VkImageLayout.TransferSrcOptimal,
                 vkDestination.OptimalDeviceImage,
-                VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                VkImageLayout.TransferDstOptimal,
                 1,
                 &region);
 
@@ -620,7 +619,7 @@ namespace Veldrid.Vulkan
             }
             _dispatchStorageImages.Clear();
 
-            if (_activeRenderPass == VkRenderPass.NULL)
+            if (_activeRenderPass == VkRenderPass.Null)
             {
                 BeginCurrentRenderPass();
             }
@@ -629,7 +628,7 @@ namespace Veldrid.Vulkan
         [MemberNotNullWhen(true, nameof(_currentFramebuffer))]
         private bool EnsureNoRenderPass()
         {
-            if (_activeRenderPass != VkRenderPass.NULL)
+            if (_activeRenderPass != VkRenderPass.Null)
             {
                 Debug.Assert(_currentFramebufferEverActive);
 
@@ -650,7 +649,7 @@ namespace Veldrid.Vulkan
 
         private void BeginCurrentRenderPass()
         {
-            Debug.Assert(_activeRenderPass == VkRenderPass.NULL);
+            Debug.Assert(_activeRenderPass == VkRenderPass.Null);
             Debug.Assert(_currentFramebuffer != null);
             _currentFramebufferEverActive = true;
 
@@ -673,7 +672,7 @@ namespace Veldrid.Vulkan
 
             VkRenderPassBeginInfo renderPassBI = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+                sType = VkStructureType.RenderPassBeginInfo,
                 renderArea = new VkRect2D()
                 {
                     offset = new VkOffset2D(),
@@ -689,7 +688,7 @@ namespace Veldrid.Vulkan
                 renderPassBI.renderPass = _newFramebuffer
                     ? _currentFramebuffer.RenderPassNoClear_Init
                     : _currentFramebuffer.RenderPassNoClear_Load;
-                vkCmdBeginRenderPass(_cb, &renderPassBI, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE);
+                vkCmdBeginRenderPass(_cb, &renderPassBI, VkSubpassContents.Inline);
                 _activeRenderPass = renderPassBI.renderPass;
 
                 if (haveAnyClearValues)
@@ -728,7 +727,7 @@ namespace Veldrid.Vulkan
                         _clearValues[colorTargetCount] = _depthClearValue.GetValueOrDefault();
                         _depthClearValue = null;
                     }
-                    vkCmdBeginRenderPass(_cb, &renderPassBI, VkSubpassContents.VK_SUBPASS_CONTENTS_INLINE);
+                    vkCmdBeginRenderPass(_cb, &renderPassBI, VkSubpassContents.Inline);
                     _activeRenderPass = renderPassBI.renderPass;
                     Util.ClearArray(_validColorClearValues);
                 }
@@ -740,7 +739,7 @@ namespace Veldrid.Vulkan
         [MemberNotNull(nameof(_currentFramebuffer))]
         private void EndCurrentRenderPass()
         {
-            Debug.Assert(_activeRenderPass != VkRenderPass.NULL);
+            Debug.Assert(_activeRenderPass != VkRenderPass.Null);
             vkCmdEndRenderPass(_cb);
             _currentFramebuffer!.TransitionToIntermediateLayout(_cb);
             _activeRenderPass = default;
@@ -749,8 +748,8 @@ namespace Veldrid.Vulkan
             // can be read in subsequent passes.
             vkCmdPipelineBarrier(
                 _cb,
-                VkPipelineStageFlags.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                VkPipelineStageFlags.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                VkPipelineStageFlags.BottomOfPipe,
+                VkPipelineStageFlags.TopOfPipe,
                 0,
                 0,
                 null,
@@ -797,7 +796,7 @@ namespace Veldrid.Vulkan
                 Util.EnsureArrayMinimumSize(ref _currentGraphicsResourceSets, vkPipeline.ResourceSetCount);
                 ClearSets(_currentGraphicsResourceSets);
                 Util.EnsureArrayMinimumSize(ref _graphicsResourceSetsChanged, vkPipeline.ResourceSetCount);
-                vkCmdBindPipeline(_cb, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline.DevicePipeline);
+                vkCmdBindPipeline(_cb, VkPipelineBindPoint.Graphics, vkPipeline.DevicePipeline);
                 _currentGraphicsPipeline = vkPipeline;
 
                 uint vertexBufferCount = vkPipeline.VertexLayoutCount;
@@ -809,7 +808,7 @@ namespace Veldrid.Vulkan
                 Util.EnsureArrayMinimumSize(ref _currentComputeResourceSets, vkPipeline.ResourceSetCount);
                 ClearSets(_currentComputeResourceSets);
                 Util.EnsureArrayMinimumSize(ref _computeResourceSetsChanged, vkPipeline.ResourceSetCount);
-                vkCmdBindPipeline(_cb, VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_COMPUTE, vkPipeline.DevicePipeline);
+                vkCmdBindPipeline(_cb, VkPipelineBindPoint.Compute, vkPipeline.DevicePipeline);
                 _currentComputePipeline = vkPipeline;
             }
         }
@@ -961,15 +960,15 @@ namespace Veldrid.Vulkan
 
             VkMemoryBarrier barrier = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_BARRIER,
-                srcAccessMask = VkAccessFlags.VK_ACCESS_TRANSFER_WRITE_BIT,
-                dstAccessMask = VkAccessFlags.VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT
+                sType = VkStructureType.MemoryBarrier,
+                srcAccessMask = VkAccessFlags.TransferWrite,
+                dstAccessMask = VkAccessFlags.VertexAttributeRead
             };
 
             vkCmdPipelineBarrier(
                 _cb,
-                VkPipelineStageFlags.VK_PIPELINE_STAGE_TRANSFER_BIT,
-                VkPipelineStageFlags.VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                VkPipelineStageFlags.Transfer,
+                VkPipelineStageFlags.VertexInput,
                 0,
                 1, &barrier,
                 0, null,
@@ -1006,17 +1005,17 @@ namespace Veldrid.Vulkan
         {
             if ((usage & TextureUsage.Sampled) != 0)
             {
-                return VkImageLayout.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                return VkImageLayout.ShaderReadOnlyOptimal;
             }
             else if ((usage & TextureUsage.RenderTarget) != 0)
             {
                 return (usage & TextureUsage.DepthStencil) != 0
-                    ? VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-                    : VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                    ? VkImageLayout.DepthStencilAttachmentOptimal
+                    : VkImageLayout.ColorAttachmentOptimal;
             }
             else
             {
-                return VkImageLayout.VK_IMAGE_LAYOUT_GENERAL;
+                return VkImageLayout.General;
             }
         }
 
@@ -1062,7 +1061,7 @@ namespace Veldrid.Vulkan
             {
                 VkImageSubresourceLayers srcSubresource = new()
                 {
-                    aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
+                    aspectMask = VkImageAspectFlags.Color,
                     layerCount = layerCount,
                     mipLevel = srcMipLevel,
                     baseArrayLayer = srcBaseArrayLayer
@@ -1070,7 +1069,7 @@ namespace Veldrid.Vulkan
 
                 VkImageSubresourceLayers dstSubresource = new()
                 {
-                    aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
+                    aspectMask = VkImageAspectFlags.Color,
                     layerCount = layerCount,
                     mipLevel = dstMipLevel,
                     baseArrayLayer = dstBaseArrayLayer
@@ -1091,7 +1090,7 @@ namespace Veldrid.Vulkan
                     1,
                     srcBaseArrayLayer,
                     layerCount,
-                    VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+                    VkImageLayout.TransferSrcOptimal);
 
                 dstVkTexture.TransitionImageLayout(
                     cb,
@@ -1099,14 +1098,14 @@ namespace Veldrid.Vulkan
                     1,
                     dstBaseArrayLayer,
                     layerCount,
-                    VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                    VkImageLayout.TransferDstOptimal);
 
                 vkCmdCopyImage(
                     cb,
                     srcVkTexture.OptimalDeviceImage,
-                    VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    VkImageLayout.TransferSrcOptimal,
                     dstVkTexture.OptimalDeviceImage,
-                    VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    VkImageLayout.TransferDstOptimal,
                     1,
                     &region);
 
@@ -1125,11 +1124,11 @@ namespace Veldrid.Vulkan
                     1,
                     dstBaseArrayLayer,
                     layerCount,
-                    VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                    VkImageLayout.TransferDstOptimal);
 
                 VkImageSubresourceLayers dstSubresource = new()
                 {
-                    aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
+                    aspectMask = VkImageAspectFlags.Color,
                     layerCount = layerCount,
                     mipLevel = dstMipLevel,
                     baseArrayLayer = dstBaseArrayLayer
@@ -1163,7 +1162,7 @@ namespace Veldrid.Vulkan
                     imageSubresource = dstSubresource
                 };
 
-                vkCmdCopyBufferToImage(cb, srcBuffer, dstImage, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &regions);
+                vkCmdCopyBufferToImage(cb, srcBuffer, dstImage, VkImageLayout.TransferDstOptimal, 1, &regions);
 
                 TransitionBackFromTransfer(cb, dstVkTexture, dstMipLevel, 1, dstBaseArrayLayer, layerCount);
             }
@@ -1176,13 +1175,13 @@ namespace Veldrid.Vulkan
                     1,
                     srcBaseArrayLayer,
                     layerCount,
-                    VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+                    VkImageLayout.TransferSrcOptimal);
 
                 VulkanBuffer dstBuffer = dstVkTexture.StagingBuffer;
 
                 VkImageAspectFlags srcAspect = (srcVkTexture.Usage & TextureUsage.DepthStencil) != 0
-                    ? VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT
-                    : VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT;
+                    ? VkImageAspectFlags.Depth
+                    : VkImageAspectFlags.Color;
 
                 Util.GetMipDimensions(dstVkTexture, dstMipLevel, out uint mipWidth, out uint mipHeight);
                 uint blockSize = FormatHelpers.IsCompressedFormat(dstVkTexture.Format) ? 4u : 1u;
@@ -1225,7 +1224,7 @@ namespace Veldrid.Vulkan
                     layers[layer] = region;
                 }
 
-                vkCmdCopyImageToBuffer(cb, srcImage, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstBuffer, layerCount, layers);
+                vkCmdCopyImageToBuffer(cb, srcImage, VkImageLayout.TransferSrcOptimal, dstBuffer, layerCount, layers);
 
                 TransitionBackFromTransfer(cb, srcVkTexture, srcMipLevel, 1, srcBaseArrayLayer, layerCount);
             }
@@ -1314,8 +1313,8 @@ namespace Veldrid.Vulkan
             uint depth = vkTex.Depth;
             for (uint level = 1; level < vkTex.MipLevels; level++)
             {
-                vkTex.TransitionImageLayoutNonmatching(_cb, level - 1, 1, 0, layerCount, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-                vkTex.TransitionImageLayoutNonmatching(_cb, level, 1, 0, layerCount, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+                vkTex.TransitionImageLayoutNonmatching(_cb, level - 1, 1, 0, layerCount, VkImageLayout.TransferSrcOptimal);
+                vkTex.TransitionImageLayoutNonmatching(_cb, level, 1, 0, layerCount, VkImageLayout.TransferDstOptimal);
 
                 VkImage deviceImage = vkTex.OptimalDeviceImage;
                 uint mipWidth = Math.Max(width >> 1, 1);
@@ -1324,7 +1323,7 @@ namespace Veldrid.Vulkan
 
                 region.srcSubresource = new VkImageSubresourceLayers()
                 {
-                    aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
+                    aspectMask = VkImageAspectFlags.Color,
                     baseArrayLayer = 0,
                     layerCount = layerCount,
                     mipLevel = level - 1
@@ -1335,7 +1334,7 @@ namespace Veldrid.Vulkan
 
                 region.dstSubresource = new VkImageSubresourceLayers()
                 {
-                    aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
+                    aspectMask = VkImageAspectFlags.Color,
                     baseArrayLayer = 0,
                     layerCount = layerCount,
                     mipLevel = level
@@ -1344,8 +1343,8 @@ namespace Veldrid.Vulkan
                 region.dstOffsets[1] = new VkOffset3D() { x = (int)mipWidth, y = (int)mipHeight, z = (int)mipDepth };
                 vkCmdBlitImage(
                     _cb,
-                    deviceImage, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                    deviceImage, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    deviceImage, VkImageLayout.TransferSrcOptimal,
+                    deviceImage, VkImageLayout.TransferDstOptimal,
                     1, &region,
                     _gd.GetFormatFilter(vkTex.VkFormat));
 
@@ -1384,18 +1383,18 @@ namespace Veldrid.Vulkan
 
             VkImageSubresourceRange range = new()
             {
-                aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
+                aspectMask = VkImageAspectFlags.Color,
                 baseMipLevel = 0,
                 levelCount = texture.MipLevels,
                 baseArrayLayer = 0,
                 layerCount = effectiveLayers
             };
 
-            texture.TransitionImageLayout(_cb, 0, texture.MipLevels, 0, effectiveLayers, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-            vkCmdClearColorImage(_cb, texture.OptimalDeviceImage, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
+            texture.TransitionImageLayout(_cb, 0, texture.MipLevels, 0, effectiveLayers, VkImageLayout.TransferDstOptimal);
+            vkCmdClearColorImage(_cb, texture.OptimalDeviceImage, VkImageLayout.TransferDstOptimal, &color, 1, &range);
             VkImageLayout colorLayout = texture.IsSwapchainTexture
-                ? VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-                : VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+                ? VkImageLayout.PresentSrcKHR
+                : VkImageLayout.ColorAttachmentOptimal;
             texture.TransitionImageLayout(_cb, 0, texture.MipLevels, 0, effectiveLayers, colorLayout);
         }
 
@@ -1406,8 +1405,8 @@ namespace Veldrid.Vulkan
             uint effectiveLayers = texture.ActualArrayLayers;
 
             VkImageAspectFlags aspect = FormatHelpers.IsStencilFormat(texture.Format)
-                ? VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT | VkImageAspectFlags.VK_IMAGE_ASPECT_STENCIL_BIT
-                : VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT;
+                ? VkImageAspectFlags.Depth | VkImageAspectFlags.Stencil
+                : VkImageAspectFlags.Depth;
 
             VkImageSubresourceRange range = new()
             {
@@ -1418,15 +1417,15 @@ namespace Veldrid.Vulkan
                 layerCount = effectiveLayers
             };
 
-            texture.TransitionImageLayout(_cb, 0, texture.MipLevels, 0, effectiveLayers, VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+            texture.TransitionImageLayout(_cb, 0, texture.MipLevels, 0, effectiveLayers, VkImageLayout.TransferDstOptimal);
             vkCmdClearDepthStencilImage(
                 _cb,
                 texture.OptimalDeviceImage,
-                VkImageLayout.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                VkImageLayout.TransferDstOptimal,
                 &clearValue,
                 1,
                 &range);
-            texture.TransitionImageLayout(_cb, 0, texture.MipLevels, 0, effectiveLayers, VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+            texture.TransitionImageLayout(_cb, 0, texture.MipLevels, 0, effectiveLayers, VkImageLayout.DepthStencilAttachmentOptimal);
         }
 
         internal void TransitionImageLayout(VkTexture texture, VkImageLayout layout)
@@ -1441,45 +1440,45 @@ namespace Veldrid.Vulkan
         {
             VkMemoryBarrier memoryBarrier = new()
             {
-                sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+                sType = VkStructureType.MemoryBarrier,
                 srcAccessMask =
-                    VkAccessFlags.VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_INDEX_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_UNIFORM_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_INPUT_ATTACHMENT_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_SHADER_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_SHADER_WRITE_BIT |
-                    VkAccessFlags.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-                    VkAccessFlags.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                    VkAccessFlags.VK_ACCESS_TRANSFER_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_TRANSFER_WRITE_BIT |
-                    VkAccessFlags.VK_ACCESS_HOST_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_HOST_WRITE_BIT,
+                    VkAccessFlags.IndirectCommandRead |
+                    VkAccessFlags.IndexRead |
+                    VkAccessFlags.VertexAttributeRead |
+                    VkAccessFlags.UniformRead |
+                    VkAccessFlags.InputAttachmentRead |
+                    VkAccessFlags.ShaderRead |
+                    VkAccessFlags.ShaderWrite |
+                    VkAccessFlags.ColorAttachmentRead |
+                    VkAccessFlags.ColorAttachmentWrite |
+                    VkAccessFlags.DepthStencilAttachmentRead |
+                    VkAccessFlags.DepthStencilAttachmentWrite |
+                    VkAccessFlags.TransferRead |
+                    VkAccessFlags.TransferWrite |
+                    VkAccessFlags.HostRead |
+                    VkAccessFlags.HostWrite,
                 dstAccessMask =
-                    VkAccessFlags.VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_INDEX_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_UNIFORM_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_INPUT_ATTACHMENT_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_SHADER_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_SHADER_WRITE_BIT |
-                    VkAccessFlags.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-                    VkAccessFlags.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                    VkAccessFlags.VK_ACCESS_TRANSFER_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_TRANSFER_WRITE_BIT |
-                    VkAccessFlags.VK_ACCESS_HOST_READ_BIT |
-                    VkAccessFlags.VK_ACCESS_HOST_WRITE_BIT
+                    VkAccessFlags.IndirectCommandRead |
+                    VkAccessFlags.IndexRead |
+                    VkAccessFlags.VertexAttributeRead |
+                    VkAccessFlags.UniformRead |
+                    VkAccessFlags.InputAttachmentRead |
+                    VkAccessFlags.ShaderRead |
+                    VkAccessFlags.ShaderWrite |
+                    VkAccessFlags.ColorAttachmentRead |
+                    VkAccessFlags.ColorAttachmentWrite |
+                    VkAccessFlags.DepthStencilAttachmentRead |
+                    VkAccessFlags.DepthStencilAttachmentWrite |
+                    VkAccessFlags.TransferRead |
+                    VkAccessFlags.TransferWrite |
+                    VkAccessFlags.HostRead |
+                    VkAccessFlags.HostWrite,
             };
 
             vkCmdPipelineBarrier(
                 _cb,
-                VkPipelineStageFlags.VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, // srcStageMask
-                VkPipelineStageFlags.VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, // dstStageMask
+                VkPipelineStageFlags.AllCommands, // srcStageMask
+                VkPipelineStageFlags.AllCommands, // dstStageMask
                 0,
                 1,                                  // memoryBarrierCount
                 &memoryBarrier,                     // pMemoryBarriers
@@ -1508,8 +1507,8 @@ namespace Veldrid.Vulkan
             void SetName(VkCommandBuffer cb, ReadOnlySpan<byte> nameUtf8)
             {
                 _gd.SetDebugMarkerName(
-                    VkDebugReportObjectTypeEXT.VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT,
-                    (ulong)cb.Value,
+                    VkDebugReportObjectTypeEXT.CommandBuffer,
+                    (ulong)cb.Handle,
                     nameUtf8);
             }
 
@@ -1529,14 +1528,14 @@ namespace Veldrid.Vulkan
             }
 
             VkCommandBuffer currentCb = _cb;
-            if (currentCb != VkCommandBuffer.NULL)
+            if (currentCb != VkCommandBuffer.Null)
             {
                 SetName(currentCb, utf8Buffer);
             }
 
             _gd.SetDebugMarkerName(
-                VkDebugReportObjectTypeEXT.VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_POOL_EXT,
-                _pool.Value,
+                VkDebugReportObjectTypeEXT.CommandPool,
+                _pool.Handle,
                 utf8Buffer);
         }
 
@@ -1556,8 +1555,8 @@ namespace Veldrid.Vulkan
             {
                 VkDebugMarkerMarkerInfoEXT markerInfo = new()
                 {
-                    sType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT,
-                    pMarkerName = (sbyte*)utf8Ptr
+                    sType = VkStructureType.DebugMarkerMarkerInfoEXT,
+                    pMarkerName = (byte*)utf8Ptr
                 };
                 func(_cb, &markerInfo);
             }
@@ -1590,8 +1589,8 @@ namespace Veldrid.Vulkan
             {
                 VkDebugMarkerMarkerInfoEXT markerInfo = new()
                 {
-                    sType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT,
-                    pMarkerName = (sbyte*)utf8Ptr
+                    sType = VkStructureType.DebugMarkerMarkerInfoEXT,
+                    pMarkerName = (byte*)utf8Ptr
                 };
                 func(_cb, &markerInfo);
             }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using TerraFX.Interop.Vulkan;
-using static TerraFX.Interop.Vulkan.Vulkan;
+using Vortice.Vulkan;
+using static Vortice.Vulkan.Vulkan;
 
 namespace Veldrid.Vulkan
 {
@@ -47,17 +47,17 @@ namespace Veldrid.Vulkan
 
                 descriptorWrites[i] = new VkWriteDescriptorSet()
                 {
-                    sType = VkStructureType.VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                    sType = VkStructureType.WriteDescriptorSet,
                     descriptorCount = 1,
                     descriptorType = type,
                     dstBinding = (uint)i,
                     dstSet = _descriptorAllocationToken.Set
                 };
 
-                if (type == VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ||
-                    type == VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
-                    type == VkDescriptorType.VK_DESCRIPTOR_TYPE_STORAGE_BUFFER ||
-                    type == VkDescriptorType.VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
+                if (type == VkDescriptorType.UniformBuffer ||
+                    type == VkDescriptorType.UniformBufferDynamic ||
+                    type == VkDescriptorType.StorageBuffer ||
+                    type == VkDescriptorType.StorageBufferDynamic)
                 {
                     DeviceBufferRange range = Util.GetBufferRange(boundResources[i], 0);
                     VkBuffer rangedVkBuffer = Util.AssertSubtype<DeviceBuffer, VkBuffer>(range.Buffer);
@@ -70,33 +70,33 @@ namespace Veldrid.Vulkan
                     descriptorWrites[i].pBufferInfo = &bufferInfos[i];
                     _refCounts.Add(rangedVkBuffer.RefCount);
                 }
-                else if (type == VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE)
+                else if (type == VkDescriptorType.SampledImage)
                 {
                     TextureView texView = Util.GetTextureView(_gd, boundResources[i]);
                     VkTextureView vkTexView = Util.AssertSubtype<TextureView, VkTextureView>(texView);
                     imageInfos[i] = new VkDescriptorImageInfo()
                     {
                         imageView = vkTexView.ImageView,
-                        imageLayout = VkImageLayout.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                        imageLayout = VkImageLayout.ShaderReadOnlyOptimal
                     };
                     descriptorWrites[i].pImageInfo = &imageInfos[i];
                     _sampledTextures.Add(Util.AssertSubtype<Texture, VkTexture>(texView.Target));
                     _refCounts.Add(vkTexView.RefCount);
                 }
-                else if (type == VkDescriptorType.VK_DESCRIPTOR_TYPE_STORAGE_IMAGE)
+                else if (type == VkDescriptorType.StorageImage)
                 {
                     TextureView texView = Util.GetTextureView(_gd, boundResources[i]);
                     VkTextureView vkTexView = Util.AssertSubtype<TextureView, VkTextureView>(texView);
                     imageInfos[i] = new VkDescriptorImageInfo()
                     {
                         imageView = vkTexView.ImageView,
-                        imageLayout = VkImageLayout.VK_IMAGE_LAYOUT_GENERAL
+                        imageLayout = VkImageLayout.General
                     };
                     descriptorWrites[i].pImageInfo = &imageInfos[i];
                     _storageImages.Add(Util.AssertSubtype<Texture, VkTexture>(texView.Target));
                     _refCounts.Add(vkTexView.RefCount);
                 }
-                else if (type == VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER)
+                else if (type == VkDescriptorType.Sampler)
                 {
                     VkSampler sampler = Util.AssertSubtype<Sampler, VkSampler>(boundResources[i].GetSampler());
                     imageInfos[i] = new VkDescriptorImageInfo() { sampler = sampler.DeviceSampler };

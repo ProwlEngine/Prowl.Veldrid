@@ -1,5 +1,5 @@
 ﻿using System;
-using TerraFX.Interop.Vulkan;
+using Vortice.Vulkan;
 
 namespace Veldrid.Vulkan
 {
@@ -29,7 +29,7 @@ namespace Veldrid.Vulkan
 
         protected abstract void DisposeCore();
 
-        public abstract TerraFX.Interop.Vulkan.VkFramebuffer CurrentFramebuffer { get; }
+        public abstract Vortice.Vulkan.VkFramebuffer CurrentFramebuffer { get; }
         public abstract VkRenderPass RenderPassNoClear_Init { get; }
         public abstract VkRenderPass RenderPassNoClear_Load { get; }
         public abstract VkRenderPass RenderPassClear { get; }
