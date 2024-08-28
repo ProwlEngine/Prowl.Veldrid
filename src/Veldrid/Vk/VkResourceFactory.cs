@@ -1,4 +1,4 @@
-﻿using Vortice.Vulkan;
+﻿using TerraFX.Interop.Vulkan;
 
 namespace Veldrid.Vulkan
 {

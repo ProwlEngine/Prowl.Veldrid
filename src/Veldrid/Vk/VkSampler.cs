@@ -1,6 +1,6 @@
-﻿using Vortice.Vulkan;
-using static Vortice.Vulkan.Vulkan;
-using VulkanSampler = Vortice.Vulkan.VkSampler;
+﻿using TerraFX.Interop.Vulkan;
+using static TerraFX.Interop.Vulkan.Vulkan;
+using VulkanSampler = TerraFX.Interop.Vulkan.VkSampler;
 
 namespace Veldrid.Vulkan
 {
@@ -24,7 +24,7 @@ namespace Veldrid.Vulkan
 
             VkSamplerCreateInfo samplerCI = new()
             {
-                sType = VkStructureType.SamplerCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
                 addressModeU = VkFormats.VdToVkSamplerAddressMode(description.AddressModeU),
                 addressModeV = VkFormats.VdToVkSamplerAddressMode(description.AddressModeV),
                 addressModeW = VkFormats.VdToVkSamplerAddressMode(description.AddressModeW),
@@ -34,7 +34,7 @@ namespace Veldrid.Vulkan
                 compareEnable = (VkBool32)(description.ComparisonKind != null),
                 compareOp = description.ComparisonKind != null
                     ? VkFormats.VdToVkCompareOp(description.ComparisonKind.Value)
-                    : VkCompareOp.Never,
+                    : VkCompareOp.VK_COMPARE_OP_NEVER,
                 anisotropyEnable = (VkBool32)(description.Filter == SamplerFilter.Anisotropic),
                 maxAnisotropy = description.MaximumAnisotropy,
                 minLod = description.MinimumLod,

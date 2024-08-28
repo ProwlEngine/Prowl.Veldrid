@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Vortice.Vulkan;
-using static Vortice.Vulkan.Vulkan;
+using TerraFX.Interop.Vulkan;
+using static TerraFX.Interop.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
-using VulkanPipeline = Vortice.Vulkan.VkPipeline;
+using VulkanPipeline = TerraFX.Interop.Vulkan.VkPipeline;
 
 namespace Veldrid.Vulkan
 {
@@ -39,7 +39,7 @@ namespace Veldrid.Vulkan
 
             VkGraphicsPipelineCreateInfo pipelineCI = new()
             {
-                sType = VkStructureType.GraphicsPipelineCreateInfo
+                sType = VkStructureType.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
             };
 
             // Blend State
@@ -64,7 +64,7 @@ namespace Veldrid.Vulkan
 
             VkPipelineColorBlendStateCreateInfo blendStateCI = new()
             {
-                sType = VkStructureType.PipelineColorBlendStateCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
                 attachmentCount = (uint)attachmentsCount,
                 pAttachments = attachmentsPtr
             };
@@ -81,13 +81,13 @@ namespace Veldrid.Vulkan
             RasterizerStateDescription rsDesc = description.RasterizerState;
             VkPipelineRasterizationStateCreateInfo rsCI = new()
             {
-                sType = VkStructureType.PipelineRasterizationStateCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
                 cullMode = VkFormats.VdToVkCullMode(rsDesc.CullMode),
                 polygonMode = VkFormats.VdToVkPolygonMode(rsDesc.FillMode),
                 depthClampEnable = (VkBool32)!rsDesc.DepthClipEnabled,
                 frontFace = rsDesc.FrontFace == FrontFace.Clockwise
-                    ? VkFrontFace.Clockwise
-                    : VkFrontFace.CounterClockwise,
+                    ? VkFrontFace.VK_FRONT_FACE_CLOCKWISE
+                    : VkFrontFace.VK_FRONT_FACE_COUNTER_CLOCKWISE,
                 lineWidth = 1f
             };
 
@@ -97,11 +97,11 @@ namespace Veldrid.Vulkan
 
             // Dynamic State
             VkDynamicState* dynamicStates = stackalloc VkDynamicState[2];
-            dynamicStates[0] = VkDynamicState.Viewport;
-            dynamicStates[1] = VkDynamicState.Scissor;
+            dynamicStates[0] = VkDynamicState.VK_DYNAMIC_STATE_VIEWPORT;
+            dynamicStates[1] = VkDynamicState.VK_DYNAMIC_STATE_SCISSOR;
             VkPipelineDynamicStateCreateInfo dynamicStateCI = new()
             {
-                sType = VkStructureType.PipelineDynamicStateCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
                 dynamicStateCount = 2,
                 pDynamicStates = dynamicStates
             };
@@ -112,7 +112,7 @@ namespace Veldrid.Vulkan
             DepthStencilStateDescription vdDssDesc = description.DepthStencilState;
             VkPipelineDepthStencilStateCreateInfo dssCI = new()
             {
-                sType = VkStructureType.PipelineDepthStencilStateCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
                 depthWriteEnable = (VkBool32)vdDssDesc.DepthWriteEnabled,
                 depthTestEnable = (VkBool32)vdDssDesc.DepthTestEnabled,
                 depthCompareOp = VkFormats.VdToVkCompareOp(vdDssDesc.DepthComparison),
@@ -145,7 +145,7 @@ namespace Veldrid.Vulkan
             VkSampleCountFlags vkSampleCount = VkFormats.VdToVkSampleCount(description.Outputs.SampleCount);
             VkPipelineMultisampleStateCreateInfo multisampleCI = new()
             {
-                sType = VkStructureType.PipelineMultisampleStateCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
                 rasterizationSamples = vkSampleCount,
                 alphaToCoverageEnable = (VkBool32)description.BlendState.AlphaToCoverageEnabled
             };
@@ -155,7 +155,7 @@ namespace Veldrid.Vulkan
             // Input Assembly
             VkPipelineInputAssemblyStateCreateInfo inputAssemblyCI = new()
             {
-                sType = VkStructureType.PipelineInputAssemblyStateCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
                 topology = VkFormats.VdToVkPrimitiveTopology(description.PrimitiveTopology)
             };
 
@@ -182,8 +182,8 @@ namespace Veldrid.Vulkan
                 {
                     binding = (uint)binding,
                     inputRate = (inputDesc.InstanceStepRate != 0)
-                                    ? VkVertexInputRate.Instance
-                                    : VkVertexInputRate.Vertex,
+                                    ? VkVertexInputRate.VK_VERTEX_INPUT_RATE_INSTANCE
+                                    : VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX,
                     stride = inputDesc.Stride
                 };
 
@@ -209,7 +209,7 @@ namespace Veldrid.Vulkan
 
             VkPipelineVertexInputStateCreateInfo vertexInputCI = new()
             {
-                sType = VkStructureType.PipelineVertexInputStateCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
                 vertexBindingDescriptionCount = bindingCount,
                 pVertexBindingDescriptions = bindingDescs,
                 vertexAttributeDescriptionCount = attributeCount,
@@ -257,7 +257,7 @@ namespace Veldrid.Vulkan
                 VkShader vkShader = Util.AssertSubtype<Shader, VkShader>(shader);
                 VkPipelineShaderStageCreateInfo stageCI = new()
                 {
-                    sType = VkStructureType.PipelineShaderStageCreateInfo,
+                    sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
                     module = vkShader.ShaderModule,
                     stage = VkFormats.VdToVkShaderStages(shader.Stage),
                     pName = shader.EntryPoint == "main" ? CommonStrings.main : new FixedUtf8String(shader.EntryPoint),
@@ -272,7 +272,7 @@ namespace Veldrid.Vulkan
             // ViewportState
             VkPipelineViewportStateCreateInfo viewportStateCI = new()
             {
-                sType = VkStructureType.PipelineViewportStateCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
                 viewportCount = 1,
                 scissorCount = 1
             };
@@ -288,7 +288,7 @@ namespace Veldrid.Vulkan
             }
             VkPipelineLayoutCreateInfo pipelineLayoutCI = new()
             {
-                sType = VkStructureType.PipelineLayoutCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
                 setLayoutCount = (uint)resourceLayouts.Length,
                 pSetLayouts = dsls
             };
@@ -315,16 +315,16 @@ namespace Veldrid.Vulkan
                 ref VkAttachmentDescription desc = ref colorAttachmentDescs[i];
                 desc.format = VkFormats.VdToVkPixelFormat(outputColorAttachmentDescs[i].Format, default);
                 desc.samples = vkSampleCount;
-                desc.loadOp = VkAttachmentLoadOp.DontCare;
-                desc.storeOp = VkAttachmentStoreOp.Store;
-                desc.stencilLoadOp = VkAttachmentLoadOp.DontCare;
-                desc.stencilStoreOp = VkAttachmentStoreOp.DontCare;
-                desc.initialLayout = VkImageLayout.Undefined;
-                desc.finalLayout = VkImageLayout.ShaderReadOnlyOptimal;
+                desc.loadOp = VkAttachmentLoadOp.VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                desc.storeOp = VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE;
+                desc.stencilLoadOp = VkAttachmentLoadOp.VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                desc.stencilStoreOp = VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE;
+                desc.initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED;
+                desc.finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 attachments.Add(desc);
 
                 colorAttachmentRefs[i].attachment = (uint)i;
-                colorAttachmentRefs[i].layout = VkImageLayout.ColorAttachmentOptimal;
+                colorAttachmentRefs[i].layout = VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
             }
 
             VkAttachmentDescription depthAttachmentDesc = new();
@@ -335,22 +335,22 @@ namespace Veldrid.Vulkan
                 bool hasStencil = FormatHelpers.IsStencilFormat(depthFormat);
                 depthAttachmentDesc.format = VkFormats.VdToVkPixelFormat(depthFormat, TextureUsage.DepthStencil);
                 depthAttachmentDesc.samples = vkSampleCount;
-                depthAttachmentDesc.loadOp = VkAttachmentLoadOp.DontCare;
-                depthAttachmentDesc.storeOp = VkAttachmentStoreOp.Store;
-                depthAttachmentDesc.stencilLoadOp = VkAttachmentLoadOp.DontCare;
+                depthAttachmentDesc.loadOp = VkAttachmentLoadOp.VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+                depthAttachmentDesc.storeOp = VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE;
+                depthAttachmentDesc.stencilLoadOp = VkAttachmentLoadOp.VK_ATTACHMENT_LOAD_OP_DONT_CARE;
                 depthAttachmentDesc.stencilStoreOp = hasStencil
-                    ? VkAttachmentStoreOp.Store
-                    : VkAttachmentStoreOp.DontCare;
-                depthAttachmentDesc.initialLayout = VkImageLayout.Undefined;
-                depthAttachmentDesc.finalLayout = VkImageLayout.DepthStencilAttachmentOptimal;
+                    ? VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_STORE
+                    : VkAttachmentStoreOp.VK_ATTACHMENT_STORE_OP_DONT_CARE;
+                depthAttachmentDesc.initialLayout = VkImageLayout.VK_IMAGE_LAYOUT_UNDEFINED;
+                depthAttachmentDesc.finalLayout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
                 depthAttachmentRef.attachment = (uint)outputColorAttachmentDescs.Length;
-                depthAttachmentRef.layout = VkImageLayout.DepthStencilAttachmentOptimal;
+                depthAttachmentRef.layout = VkImageLayout.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             }
 
             VkSubpassDescription subpass = new()
             {
-                pipelineBindPoint = VkPipelineBindPoint.Graphics,
+                pipelineBindPoint = VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS,
                 colorAttachmentCount = (uint)outputColorAttachmentDescs.Length,
                 pColorAttachments = (VkAttachmentReference*)colorAttachmentRefs.Data
             };
@@ -369,14 +369,14 @@ namespace Veldrid.Vulkan
             VkSubpassDependency subpassDependency = new()
             {
                 srcSubpass = VK_SUBPASS_EXTERNAL,
-                srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput,
-                dstStageMask = VkPipelineStageFlags.ColorAttachmentOutput,
-                dstAccessMask = VkAccessFlags.ColorAttachmentRead | VkAccessFlags.ColorAttachmentWrite
+                srcStageMask = VkPipelineStageFlags.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                dstStageMask = VkPipelineStageFlags.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                dstAccessMask = VkAccessFlags.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VkAccessFlags.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
             };
 
             VkRenderPassCreateInfo renderPassCI = new()
             {
-                sType = VkStructureType.RenderPassCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
                 attachmentCount = attachments.Count,
                 pAttachments = (VkAttachmentDescription*)attachments.Data,
                 subpassCount = 1,
@@ -423,7 +423,7 @@ namespace Veldrid.Vulkan
 
             VkPipelineLayoutCreateInfo pipelineLayoutCI = new()
             {
-                sType = VkStructureType.PipelineLayoutCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
                 setLayoutCount = (uint)resourceLayouts.Length,
                 pSetLayouts = dsls
             };
@@ -468,7 +468,7 @@ namespace Veldrid.Vulkan
             VkShader vkShader = Util.AssertSubtype<Shader, VkShader>(shader);
             VkPipelineShaderStageCreateInfo stageCI = new()
             {
-                sType = VkStructureType.PipelineShaderStageCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
                 module = vkShader.ShaderModule,
                 stage = VkFormats.VdToVkShaderStages(shader.Stage),
                 pName = shader.EntryPoint == "main" ? CommonStrings.main : new FixedUtf8String(shader.EntryPoint),
@@ -477,7 +477,7 @@ namespace Veldrid.Vulkan
 
             VkComputePipelineCreateInfo pipelineCI = new()
             {
-                sType = VkStructureType.ComputePipelineCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
                 stage = stageCI,
                 layout = _pipelineLayout
             };

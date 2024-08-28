@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Vortice.Vulkan;
-using static Vortice.Vulkan.Vulkan;
+using TerraFX.Interop.Vulkan;
+using static TerraFX.Interop.Vulkan.VkAttachmentLoadOp;
+using static TerraFX.Interop.Vulkan.VkAttachmentStoreOp;
+using static TerraFX.Interop.Vulkan.VkImageLayout;
+using static TerraFX.Interop.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
-using VulkanFramebuffer = Vortice.Vulkan.VkFramebuffer;
+using VulkanFramebuffer = TerraFX.Interop.Vulkan.VkFramebuffer;
 
 namespace Veldrid.Vulkan
 {
@@ -67,7 +70,7 @@ namespace Veldrid.Vulkan
                 colorAttachmentRefs.Add(colorAttachmentRef);
             }
 
-            VkSubpassDescription subpass = new() { pipelineBindPoint = VkPipelineBindPoint.Graphics };
+            VkSubpassDescription subpass = new() { pipelineBindPoint = VkPipelineBindPoint.VK_PIPELINE_BIND_POINT_GRAPHICS };
 
             VkAttachmentReference depthAttachmentRef = new();
             if (DepthTarget != null)
@@ -107,14 +110,14 @@ namespace Veldrid.Vulkan
             VkSubpassDependency subpassDependency = new()
             {
                 srcSubpass = VK_SUBPASS_EXTERNAL,
-                srcStageMask = VkPipelineStageFlags.ColorAttachmentOutput,
-                dstStageMask = VkPipelineStageFlags.ColorAttachmentOutput,
-                dstAccessMask = VkAccessFlags.ColorAttachmentRead | VkAccessFlags.ColorAttachmentWrite
+                srcStageMask = VkPipelineStageFlags.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                dstStageMask = VkPipelineStageFlags.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                dstAccessMask = VkAccessFlags.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VkAccessFlags.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
             };
 
             VkRenderPassCreateInfo renderPassCI = new()
             {
-                sType = VkStructureType.RenderPassCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
                 attachmentCount = attachments.Count,
                 pAttachments = (VkAttachmentDescription*)attachments.Data,
                 subpassCount = 1,
@@ -190,13 +193,13 @@ namespace Veldrid.Vulkan
                 VkTexture vkColorTarget = Util.AssertSubtype<Texture, VkTexture>(colorTargetDescs[i].Target);
                 VkImageViewCreateInfo imageViewCI = new()
                 {
-                    sType = VkStructureType.ImageViewCreateInfo,
+                    sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
                     image = vkColorTarget.OptimalDeviceImage,
                     format = vkColorTarget.VkFormat,
-                    viewType = VkImageViewType.Image2D,
+                    viewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_2D,
                     subresourceRange = new VkImageSubresourceRange()
                     {
-                        aspectMask = VkImageAspectFlags.Color,
+                        aspectMask = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT,
                         baseMipLevel = colorTargetDescs[i].MipLevel,
                         levelCount = 1,
                         baseArrayLayer = colorTargetDescs[i].ArrayLayer,
@@ -218,17 +221,17 @@ namespace Veldrid.Vulkan
 
                 VkImageViewCreateInfo depthViewCI = new()
                 {
-                    sType = VkStructureType.ImageViewCreateInfo,
+                    sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
                     image = vkDepthTarget.OptimalDeviceImage,
                     format = vkDepthTarget.VkFormat,
                     viewType = depthTargetDesc.Target.ArrayLayers == 1
-                        ? VkImageViewType.Image2D
-                        : VkImageViewType.Image2DArray,
+                        ? VkImageViewType.VK_IMAGE_VIEW_TYPE_2D
+                        : VkImageViewType.VK_IMAGE_VIEW_TYPE_2D_ARRAY,
                     subresourceRange = new VkImageSubresourceRange()
                     {
                         aspectMask = hasStencil
-                            ? VkImageAspectFlags.Depth | VkImageAspectFlags.Stencil
-                            : VkImageAspectFlags.Depth,
+                            ? VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT | VkImageAspectFlags.VK_IMAGE_ASPECT_STENCIL_BIT
+                            : VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT,
                         baseMipLevel = depthTargetDesc.MipLevel,
                         levelCount = 1,
                         baseArrayLayer = depthTargetDesc.ArrayLayer,
@@ -265,7 +268,7 @@ namespace Veldrid.Vulkan
 
                 VkFramebufferCreateInfo fbCI = new()
                 {
-                    sType = VkStructureType.FramebufferCreateInfo,
+                    sType = VkStructureType.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
                     width = mipWidth,
                     height = mipHeight,
                     attachmentCount = (uint)fbAttachmentsCount,

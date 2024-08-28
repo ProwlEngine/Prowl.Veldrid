@@ -1,5 +1,5 @@
-﻿using Vortice.Vulkan;
-using static Vortice.Vulkan.Vulkan;
+﻿using TerraFX.Interop.Vulkan;
+using static TerraFX.Interop.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
 
 namespace Veldrid.Vulkan
@@ -52,25 +52,25 @@ namespace Veldrid.Vulkan
 
                 switch (descriptorType)
                 {
-                    case VkDescriptorType.Sampler:
+                    case VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLER:
                         samplerCount += 1;
                         break;
-                    case VkDescriptorType.SampledImage:
+                    case VkDescriptorType.VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                         sampledImageCount += 1;
                         break;
-                    case VkDescriptorType.StorageImage:
+                    case VkDescriptorType.VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                         storageImageCount += 1;
                         break;
-                    case VkDescriptorType.UniformBuffer:
+                    case VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                         uniformBufferCount += 1;
                         break;
-                    case VkDescriptorType.UniformBufferDynamic:
+                    case VkDescriptorType.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                         uniformBufferDynamicCount += 1;
                         break;
-                    case VkDescriptorType.StorageBuffer:
+                    case VkDescriptorType.VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                         storageBufferCount += 1;
                         break;
-                    case VkDescriptorType.StorageBufferDynamic:
+                    case VkDescriptorType.VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                         storageBufferDynamicCount += 1;
                         break;
                 }
@@ -87,7 +87,7 @@ namespace Veldrid.Vulkan
 
             VkDescriptorSetLayoutCreateInfo dslCI = new()
             {
-                sType = VkStructureType.DescriptorSetLayoutCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
                 bindingCount = (uint)elements.Length,
                 pBindings = bindings
             };

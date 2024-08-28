@@ -1,6 +1,6 @@
 ﻿using System;
-using Vortice.Vulkan;
-using static Vortice.Vulkan.Vulkan;
+using TerraFX.Interop.Vulkan;
+using static TerraFX.Interop.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
 
 namespace Veldrid.Vulkan
@@ -26,7 +26,7 @@ namespace Veldrid.Vulkan
             {
                 VkShaderModuleCreateInfo shaderModuleCI = new()
                 {
-                    sType = VkStructureType.ShaderModuleCreateInfo,
+                    sType = VkStructureType.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
                     codeSize = (UIntPtr)description.ShaderBytes.Length,
                     pCode = (uint*)codePtr
                 };

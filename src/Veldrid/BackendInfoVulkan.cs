@@ -1,7 +1,7 @@
 ﻿#if !EXCLUDE_VULKAN_BACKEND
 using System;
 using System.Collections.ObjectModel;
-using Vortice.Vulkan;
+using TerraFX.Interop.Vulkan;
 using Veldrid.Vulkan;
 
 namespace Veldrid
@@ -29,22 +29,22 @@ namespace Veldrid
         /// <summary>
         /// Gets the underlying VkInstance used by the GraphicsDevice.
         /// </summary>
-        public IntPtr Instance => (IntPtr)_gd.Instance.Handle;
+        public IntPtr Instance => (IntPtr)_gd.Instance.Value;
 
         /// <summary>
         /// Gets the underlying VkDevice used by the GraphicsDevice.
         /// </summary>
-        public IntPtr Device => (IntPtr)_gd.Device.Handle;
+        public IntPtr Device => (IntPtr)_gd.Device.Value;
 
         /// <summary>
         /// Gets the underlying VkPhysicalDevice used by the GraphicsDevice.
         /// </summary>
-        public IntPtr PhysicalDevice => (IntPtr)_gd.PhysicalDevice.Handle;
+        public IntPtr PhysicalDevice => (IntPtr)_gd.PhysicalDevice.Value;
 
         /// <summary>
         /// Gets the VkQueue which is used by the GraphicsDevice to submit graphics work.
         /// </summary>
-        public IntPtr GraphicsQueue => (IntPtr)_gd.GraphicsQueue.Handle;
+        public IntPtr GraphicsQueue => (IntPtr)_gd.GraphicsQueue.Value;
 
         /// <summary>
         /// Gets the queue family index of the graphics VkQueue.
@@ -101,7 +101,7 @@ namespace Veldrid
                     $"has {nameof(TextureUsage)}.{nameof(TextureUsage.Staging)}.");
             }
 
-            return vkTexture.OptimalDeviceImage.Handle;
+            return vkTexture.OptimalDeviceImage.Value;
         }
 
         /// <summary>

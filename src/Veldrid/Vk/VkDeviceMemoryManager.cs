@@ -7,13 +7,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-
-using Vortice.Vulkan;
-using static Vortice.Vulkan.Vulkan;
-
+using TerraFX.Interop.Vulkan;
+using static TerraFX.Interop.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
-
-using VulkanBuffer = Vortice.Vulkan.VkBuffer;
+using VulkanBuffer = TerraFX.Interop.Vulkan.VkBuffer;
 
 namespace Veldrid.Vulkan
 {
@@ -55,8 +52,8 @@ namespace Veldrid.Vulkan
                 size,
                 alignment,
                 false,
-                VkImage.Null,
-                VulkanBuffer.Null);
+                VkImage.NULL,
+                VulkanBuffer.NULL);
         }
 
         public VkMemoryBlock Allocate(
@@ -84,7 +81,7 @@ namespace Veldrid.Vulkan
             if (dedicated || alignedSize >= minDedicatedAllocationSize)
             {
                 ulong dedicatedSize;
-                if (dedicatedImage == VkImage.Null && dedicatedBuffer == VulkanBuffer.Null)
+                if (dedicatedImage == VkImage.NULL && dedicatedBuffer == VulkanBuffer.NULL)
                 {
                     // Round up to the nearest multiple of bufferImageGranularity.
                     dedicatedSize = ((alignedSize + _bufferImageGranularity - 1) / _bufferImageGranularity) * _bufferImageGranularity;
@@ -97,7 +94,7 @@ namespace Veldrid.Vulkan
 
                 VkMemoryAllocateInfo allocateInfo = new()
                 {
-                    sType = VkStructureType.MemoryAllocateInfo,
+                    sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
                     allocationSize = dedicatedSize,
                     memoryTypeIndex = memoryTypeIndex
                 };
@@ -107,7 +104,7 @@ namespace Veldrid.Vulkan
                 {
                     dedicatedAI = new VkMemoryDedicatedAllocateInfo()
                     {
-                        sType = VkStructureType.MemoryDedicatedAllocateInfo,
+                        sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO,
                         buffer = dedicatedBuffer,
                         image = dedicatedImage
                     };
@@ -116,7 +113,7 @@ namespace Veldrid.Vulkan
 
                 VkDeviceMemory memory;
                 VkResult allocationResult = vkAllocateMemory(_device, &allocateInfo, null, &memory);
-                if (allocationResult != VkResult.Success)
+                if (allocationResult != VkResult.VK_SUCCESS)
                 {
                     throw new VeldridException("Unable to allocate sufficient Vulkan memory.");
                 }
@@ -125,7 +122,7 @@ namespace Veldrid.Vulkan
                 if (persistentMapped)
                 {
                     VkResult mapResult = vkMapMemory(_device, memory, 0, dedicatedSize, 0, &mappedPtr);
-                    if (mapResult != VkResult.Success)
+                    if (mapResult != VkResult.VK_SUCCESS)
                     {
                         throw new VeldridException("Unable to map newly-allocated Vulkan memory.");
                     }
@@ -286,7 +283,7 @@ namespace Veldrid.Vulkan
 
                 VkMemoryAllocateInfo memoryAI = new()
                 {
-                    sType = VkStructureType.MemoryAllocateInfo,
+                    sType = VkStructureType.VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
                     allocationSize = _totalMemorySize,
                     memoryTypeIndex = _memoryTypeIndex
                 };
@@ -662,7 +659,7 @@ namespace Veldrid.Vulkan
 
         private string GetDebuggerDisplay()
         {
-            return $"[Mem:{DeviceMemory.Handle:x}] Off:{Offset}, Size:{Size}, End:{Offset + Size}";
+            return $"[Mem:{DeviceMemory.Value:x}] Off:{Offset}, Size:{Size}, End:{Offset + Size}";
         }
     }
 }

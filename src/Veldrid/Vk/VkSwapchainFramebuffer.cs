@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using Vortice.Vulkan;
-using static Vortice.Vulkan.Vulkan;
+using TerraFX.Interop.Vulkan;
+using static TerraFX.Interop.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
 
 namespace Veldrid.Vulkan
@@ -21,7 +21,7 @@ namespace Veldrid.Vulkan
 
         private string? _name;
 
-        public override Vortice.Vulkan.VkFramebuffer CurrentFramebuffer => _scFramebuffers[_currentImageIndex].CurrentFramebuffer;
+        public override TerraFX.Interop.Vulkan.VkFramebuffer CurrentFramebuffer => _scFramebuffers[_currentImageIndex].CurrentFramebuffer;
 
         public override VkRenderPass RenderPassNoClear_Init => _scFramebuffers[0].RenderPassNoClear_Init;
         public override VkRenderPass RenderPassNoClear_Load => _scFramebuffers[0].RenderPassNoClear_Load;
@@ -159,15 +159,15 @@ namespace Veldrid.Vulkan
             foreach (ref readonly FramebufferAttachment ca in ColorTargets)
             {
                 VkTexture vkTex = Util.AssertSubtype<Texture, VkTexture>(ca.Target);
-                vkTex.SetImageLayout(0, ca.ArrayLayer, VkImageLayout.ColorAttachmentOptimal);
+                vkTex.SetImageLayout(0, ca.ArrayLayer, VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
             }
         }
 
         public override void TransitionToFinalLayout(VkCommandBuffer cb, bool attachment)
         {
             VkImageLayout layout = attachment
-                ? VkImageLayout.ColorAttachmentOptimal
-                : VkImageLayout.PresentSrcKHR;
+                ? VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+                : VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
             foreach (ref readonly FramebufferAttachment ca in ColorTargets)
             {

@@ -1,5 +1,5 @@
-﻿using Vortice.Vulkan;
-using static Vortice.Vulkan.Vulkan;
+﻿using TerraFX.Interop.Vulkan;
+using static TerraFX.Interop.Vulkan.Vulkan;
 
 namespace Veldrid.Vulkan
 {
@@ -26,16 +26,16 @@ namespace Veldrid.Vulkan
             VkImageAspectFlags aspectFlags;
             if ((description.Target.Usage & TextureUsage.DepthStencil) == TextureUsage.DepthStencil)
             {
-                aspectFlags = VkImageAspectFlags.Depth;
+                aspectFlags = VkImageAspectFlags.VK_IMAGE_ASPECT_DEPTH_BIT;
             }
             else
             {
-                aspectFlags = VkImageAspectFlags.Color;
+                aspectFlags = VkImageAspectFlags.VK_IMAGE_ASPECT_COLOR_BIT;
             }
 
             VkImageViewCreateInfo imageViewCI = new()
             {
-                sType = VkStructureType.ImageViewCreateInfo,
+                sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
                 image = tex.OptimalDeviceImage,
                 format = VkFormats.VdToVkPixelFormat(Format, tex.Usage),
                 subresourceRange = new VkImageSubresourceRange()
@@ -51,8 +51,8 @@ namespace Veldrid.Vulkan
             if ((tex.Usage & TextureUsage.Cubemap) == TextureUsage.Cubemap)
             {
                 imageViewCI.viewType = description.ArrayLayers == 1
-                    ? VkImageViewType.ImageCube
-                    : VkImageViewType.ImageCubeArray;
+                    ? VkImageViewType.VK_IMAGE_VIEW_TYPE_CUBE
+                    : VkImageViewType.VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
                 imageViewCI.subresourceRange.layerCount *= 6;
             }
             else
@@ -61,16 +61,16 @@ namespace Veldrid.Vulkan
                 {
                     case TextureType.Texture1D:
                         imageViewCI.viewType = description.ArrayLayers == 1
-                            ? VkImageViewType.Image1D
-                            : VkImageViewType.Image1DArray;
+                            ? VkImageViewType.VK_IMAGE_VIEW_TYPE_1D
+                            : VkImageViewType.VK_IMAGE_VIEW_TYPE_1D_ARRAY;
                         break;
                     case TextureType.Texture2D:
                         imageViewCI.viewType = description.ArrayLayers == 1
-                            ? VkImageViewType.Image2D
-                            : VkImageViewType.Image2DArray;
+                            ? VkImageViewType.VK_IMAGE_VIEW_TYPE_2D
+                            : VkImageViewType.VK_IMAGE_VIEW_TYPE_2D_ARRAY;
                         break;
                     case TextureType.Texture3D:
-                        imageViewCI.viewType = VkImageViewType.Image3D;
+                        imageViewCI.viewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_3D;
                         break;
                 }
             }
