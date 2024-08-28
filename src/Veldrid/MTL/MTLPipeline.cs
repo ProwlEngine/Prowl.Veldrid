@@ -40,7 +40,7 @@ namespace Veldrid.MTL
             for (int i = 0; i < ResourceLayouts.Length; i++)
             {
                 ResourceLayouts[i] = Util.AssertSubtype<ResourceLayout, MTLResourceLayout>(description.ResourceLayouts[i]);
-                NonVertexBufferCount += ResourceLayouts[i].BufferCount;
+                NonVertexBufferCount += ResourceLayouts[i].LastBufferIndex;
             }
             ResourceBindingModel = description.ResourceBindingModel ?? gd.ResourceBindingModel;
 

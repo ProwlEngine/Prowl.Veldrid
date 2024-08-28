@@ -873,7 +873,7 @@ namespace Veldrid.MTL
         private void BindBuffer(DeviceBufferRange range, uint set, uint slot, ShaderStages stages)
         {
             MTLBuffer mtlBuffer = Util.AssertSubtype<DeviceBuffer, MTLBuffer>(range.Buffer);
-            uint baseBuffer = GetBufferBase(set, stages != ShaderStages.Compute);
+            uint baseBuffer = GetResourceBase(set, stages != ShaderStages.Compute);
             if (stages == ShaderStages.Compute)
             {
                 _cce.setBuffer(mtlBuffer.DeviceBuffer, range.Offset, slot + baseBuffer);
@@ -896,7 +896,7 @@ namespace Veldrid.MTL
 
         private void BindTexture(MTLTextureView mtlTexView, uint set, uint slot, ShaderStages stages)
         {
-            uint baseTexture = GetTextureBase(set, stages != ShaderStages.Compute);
+            uint baseTexture = GetResourceBase(set, stages != ShaderStages.Compute);
             if (stages == ShaderStages.Compute)
             {
                 _cce.setTexture(mtlTexView.TargetDeviceTexture, slot + baseTexture);
@@ -913,7 +913,7 @@ namespace Veldrid.MTL
 
         private void BindSampler(MTLSampler mtlSampler, uint set, uint slot, ShaderStages stages)
         {
-            uint baseSampler = GetSamplerBase(set, stages != ShaderStages.Compute);
+            uint baseSampler = GetResourceBase(set, stages != ShaderStages.Compute);
             if (stages == ShaderStages.Compute)
             {
                 _cce.setSamplerState(mtlSampler.DeviceSampler, slot + baseSampler);
@@ -928,40 +928,16 @@ namespace Veldrid.MTL
             }
         }
 
-        private uint GetBufferBase(uint set, bool graphics)
+
+        private uint GetResourceBase(uint set, bool graphics)
         {
             MTLResourceLayout[] layouts = graphics ? _graphicsPipeline.ResourceLayouts : _computePipeline.ResourceLayouts;
+
             uint ret = 0;
             for (int i = 0; i < set; i++)
             {
                 Debug.Assert(layouts[i] != null);
-                ret += layouts[i].BufferCount;
-            }
-
-            return ret;
-        }
-
-        private uint GetTextureBase(uint set, bool graphics)
-        {
-            MTLResourceLayout[] layouts = graphics ? _graphicsPipeline.ResourceLayouts : _computePipeline.ResourceLayouts;
-            uint ret = 0;
-            for (int i = 0; i < set; i++)
-            {
-                Debug.Assert(layouts[i] != null);
-                ret += layouts[i].TextureCount;
-            }
-
-            return ret;
-        }
-
-        private uint GetSamplerBase(uint set, bool graphics)
-        {
-            MTLResourceLayout[] layouts = graphics ? _graphicsPipeline.ResourceLayouts : _computePipeline.ResourceLayouts;
-            uint ret = 0;
-            for (int i = 0; i < set; i++)
-            {
-                Debug.Assert(layouts[i] != null);
-                ret += layouts[i].SamplerCount;
+                ret += layouts[i].ResourceCount;
             }
 
             return ret;

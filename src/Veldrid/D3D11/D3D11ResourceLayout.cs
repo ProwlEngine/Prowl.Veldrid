@@ -6,6 +6,8 @@
         private string? _name;
         private bool _disposed;
 
+        public int ResourceCount { get; }
+
         public D3D11ResourceLayout(in ResourceLayoutDescription description)
             : base(description)
         {
@@ -20,6 +22,8 @@
                     elements[i].Kind,
                     (elements[i].Options & ResourceLayoutElementOptions.DynamicBinding) != 0);
             }
+
+            ResourceCount = elements.Length;
         }
 
         public ResourceBindingInfo GetDeviceSlotIndex(int resourceLayoutIndex)

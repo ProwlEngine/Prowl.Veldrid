@@ -4,9 +4,10 @@ namespace Veldrid.MTL
     {
         private readonly ResourceBindingInfo[] _bindingInfosByVdIndex;
         private bool _disposed;
-        public uint BufferCount { get; }
-        public uint TextureCount { get; }
-        public uint SamplerCount { get; }
+
+        public uint ResourceCount { get; }
+        public uint LastBufferIndex { get; }
+
 #if !VALIDATE_USAGE
         public ResourceKind[] ResourceKinds { get; }
 #endif
@@ -32,35 +33,29 @@ namespace Veldrid.MTL
             }
 #endif
 
-            _bindingInfosByVdIndex = new ResourceBindingInfo[elements.Length];
-
             uint bufferIndex = 0;
-            uint texIndex = 0;
-            uint samplerIndex = 0;
+
+            _bindingInfosByVdIndex = new ResourceBindingInfo[elements.Length];
 
             for (int i = 0; i < _bindingInfosByVdIndex.Length; i++)
             {
-                uint slot = elements[i].Kind switch
+                bufferIndex = elements[i].Kind switch
                 {
-                    ResourceKind.UniformBuffer => bufferIndex++,
-                    ResourceKind.StructuredBufferReadOnly => bufferIndex++,
-                    ResourceKind.StructuredBufferReadWrite => bufferIndex++,
-                    ResourceKind.TextureReadOnly => texIndex++,
-                    ResourceKind.TextureReadWrite => texIndex++,
-                    ResourceKind.Sampler => samplerIndex++,
-                    _ => Illegal.Value<ResourceKind, uint>(),
+                    ResourceKind.UniformBuffer => (uint)i,
+                    ResourceKind.StructuredBufferReadOnly => (uint)i,
+                    ResourceKind.StructuredBufferReadWrite => (uint)i,
+                    _ => bufferIndex
                 };
 
                 _bindingInfosByVdIndex[i] = new ResourceBindingInfo(
-                    slot,
+                    (uint)i,
                     elements[i].Stages,
                     elements[i].Kind,
                     (elements[i].Options & ResourceLayoutElementOptions.DynamicBinding) != 0);
             }
 
-            BufferCount = bufferIndex;
-            TextureCount = texIndex;
-            SamplerCount = samplerIndex;
+            ResourceCount = (uint)elements.Length;
+            LastBufferIndex = bufferIndex;
         }
 
         public override string? Name { get; set; }
