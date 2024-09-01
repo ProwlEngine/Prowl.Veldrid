@@ -539,6 +539,21 @@ namespace Veldrid
         }
 
         /// <summary>
+        /// Sets all active viewports to cover a new <see cref="Viewport"/>.
+        /// </summary>
+        /// /// <param name="viewport">The new <see cref="Viewport"/>.</param>
+        public void SetViewports(in Viewport viewport)
+        {
+            SetViewport(0, viewport);
+
+            int length = _framebuffer!.ColorTargets.Length;
+            for (uint index = 1; index < length; index++)
+            {
+                SetViewport(index, viewport);
+            }
+        }
+
+        /// <summary>
         /// Sets the active <see cref="Viewport"/> at the given index.
         /// The index given must be less than the number of color attachments in the active <see cref="Framebuffer"/>.
         /// </summary>
@@ -569,6 +584,20 @@ namespace Veldrid
         public void SetFullScissorRect(uint index)
         {
             SetScissorRect(index, 0, 0, _framebuffer!.Width, _framebuffer.Height);
+        }
+
+        /// <summary>
+        /// Sets all active scissor rectangles to cover the active <see cref="Framebuffer"/>.
+        /// </summary>
+        public void SetScissorRects(uint x, uint y, uint width, uint height)
+        {
+            SetScissorRect(0, x, y, width, height);
+
+            int length = _framebuffer!.ColorTargets.Length;
+            for (uint index = 1; index < length; index++)
+            {
+                SetScissorRect(index, 0, 0, width, height);
+            }
         }
 
         /// <summary>
@@ -1435,7 +1464,7 @@ namespace Veldrid
         /// <summary>
         /// Pushes a debug group at the current position in the <see cref="CommandList"/>. This allows subsequent commands to be
         /// categorized and filtered when viewed in external debugging tools. This method can be called multiple times in order
-        /// to create nested debug groupings. 
+        /// to create nested debug groupings.
         /// </summary>
         /// <param name="name">The name of the group. This is an opaque identifier used for display by graphics debuggers.</param>
         private protected abstract void PushDebugGroupCore(ReadOnlySpan<char> name);
