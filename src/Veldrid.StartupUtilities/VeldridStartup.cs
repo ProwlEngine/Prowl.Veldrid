@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+
 using Veldrid.Sdl2;
 using Veldrid.Vulkan;
 
@@ -87,6 +88,9 @@ namespace Veldrid.StartupUtilities
             };
         }
 
+        public static GraphicsDevice CreateGraphicsDevice()
+            => CreateGraphicsDevice(null, default, GraphicsBackend.Null);
+
         public static GraphicsDevice CreateGraphicsDevice(Sdl2Window window)
             => CreateGraphicsDevice(window, new GraphicsDeviceOptions(), GetPlatformDefaultBackend());
 
@@ -134,6 +138,9 @@ namespace Veldrid.StartupUtilities
 #else
                     throw new VeldridException("OpenGL support has not been included in this configuration of Veldrid");
 #endif
+                case GraphicsBackend.Null:
+                    return CreateNullGraphicsDevice();
+
                 default:
                     throw new VeldridException("Invalid GraphicsBackend: " + preferredBackend);
             }
@@ -476,5 +483,20 @@ namespace Veldrid.StartupUtilities
             return true;
         }
 #endif
+
+        public static GraphicsDevice CreateNullGraphicsDevice()
+        {
+            SwapchainDescription scDesc = new(
+                null,
+                (uint)1,
+                (uint)1,
+                default,
+                default,
+                false);
+
+            GraphicsDevice gd = GraphicsDevice.CreateNull(scDesc);
+
+            return gd;
+        }
     }
 }

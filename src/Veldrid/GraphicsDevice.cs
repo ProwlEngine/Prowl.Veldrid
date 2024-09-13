@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+
 using Veldrid.Vulkan;
 
 namespace Veldrid
@@ -49,7 +50,7 @@ namespace Veldrid
 
         /// <summary>
         /// Gets a value identifying whether texture coordinates begin in the top left corner of a Texture.
-        /// If true, (0, 0) refers to the top-left texel of a Texture. If false, (0, 0) refers to the bottom-left 
+        /// If true, (0, 0) refers to the top-left texel of a Texture. If false, (0, 0) refers to the bottom-left
         /// texel of a Texture. This property is useful for determining how the output of a Framebuffer should be sampled.
         /// </summary>
         public bool IsUvOriginTopLeft { get; protected set; }
@@ -1217,6 +1218,8 @@ namespace Veldrid
 #else
                     return false;
 #endif
+                case GraphicsBackend.Null:
+                    return true;
 
                 default:
                     return Illegal.Value<GraphicsBackend, bool>();
@@ -1465,5 +1468,23 @@ namespace Veldrid
             return new MTL.MTLGraphicsDevice(options, swapchainDesc);
         }
 #endif
+
+        /// <summary>
+        /// Creates a new <see cref="GraphicsDevice"/> using no API.
+        /// </summary>
+        /// <returns>A new <see cref="GraphicsDevice"/> using no API.</returns>
+        public static GraphicsDevice CreateNull()
+        {
+            return new Null.NullGraphicsDevice();
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="GraphicsDevice"/> using no API.
+        /// </summary>
+        /// <returns>A new <see cref="GraphicsDevice"/> using no API.</returns>
+        public static GraphicsDevice CreateNull(in SwapchainDescription description)
+        {
+            return new Null.NullGraphicsDevice(description);
+        }
     }
 }

@@ -25,5 +25,9 @@
         /// OpenGL ES.
         /// </summary>
         OpenGLES,
+        /// <summary>
+        /// Null.
+        /// </summary>
+        Null,
     }
 }
