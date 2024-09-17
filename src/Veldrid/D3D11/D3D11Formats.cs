@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+
 using Vortice.Direct3D11;
 using Vortice.DXGI;
 
@@ -27,7 +28,7 @@ namespace Veldrid.D3D11
                     return Format.R8_SInt;
 
                 case PixelFormat.R16_UNorm:
-                    return depthFormat ? Format.R16_Typeless : Format.R16_UNorm;
+                    return depthFormat ? Format.D16_UNorm : Format.R16_UNorm;
                 case PixelFormat.R16_SNorm:
                     return Format.R16_SNorm;
                 case PixelFormat.R16_UInt:
@@ -42,7 +43,7 @@ namespace Veldrid.D3D11
                 case PixelFormat.R32_SInt:
                     return Format.R32_SInt;
                 case PixelFormat.R32_Float:
-                    return depthFormat ? Format.R32_Typeless : Format.R32_Float;
+                    return depthFormat ? Format.D32_Float : Format.R32_Float;
 
                 case PixelFormat.R8_G8_UNorm:
                     return Format.R8G8_UNorm;
@@ -132,15 +133,15 @@ namespace Veldrid.D3D11
                     return Format.BC7_UNorm_SRgb;
 
                 case PixelFormat.D16_UNorm:
-                    return Format.R16_Typeless;
+                    return Format.D16_UNorm;
                 case PixelFormat.D16_UNorm_S8_UInt:
                     throw new VeldridException($"{nameof(PixelFormat.D16_UNorm_S8_UInt)} is not supported on Direct3D 11.");
                 case PixelFormat.D32_Float:
-                    return Format.R32_Typeless;
+                    return Format.D32_Float;
                 case PixelFormat.D24_UNorm_S8_UInt:
-                    return Format.R24G8_Typeless;
+                    return Format.D24_UNorm_S8_UInt;
                 case PixelFormat.D32_Float_S8_UInt:
-                    return Format.R32G8X24_Typeless;
+                    return Format.D32_Float_S8X24_UInt;
 
                 case PixelFormat.R10_G10_B10_A2_UNorm:
                     return Format.R10G10B10A2_UNorm;
@@ -152,8 +153,7 @@ namespace Veldrid.D3D11
                 case PixelFormat.ETC2_R8_G8_B8_UNorm:
                 case PixelFormat.ETC2_R8_G8_B8_A1_UNorm:
                 case PixelFormat.ETC2_R8_G8_B8_A8_UNorm:
-                    static Format Throw() => throw new VeldridException("ETC2 formats are not supported on Direct3D 11.");
-                    return Throw();
+                    throw new VeldridException("ETC2 formats are not supported on Direct3D 11.");
 
                 default:
                     return Illegal.Value<PixelFormat, Format>();
@@ -332,7 +332,8 @@ namespace Veldrid.D3D11
 
         internal static bool IsUnsupportedFormat(PixelFormat format)
         {
-            return format == PixelFormat.ETC2_R8_G8_B8_UNorm
+            return format == PixelFormat.D16_UNorm_S8_UInt
+                || format == PixelFormat.ETC2_R8_G8_B8_UNorm
                 || format == PixelFormat.ETC2_R8_G8_B8_A1_UNorm
                 || format == PixelFormat.ETC2_R8_G8_B8_A8_UNorm;
         }
@@ -522,7 +523,7 @@ namespace Veldrid.D3D11
             }
         }
 
-        internal static Vortice.Direct3D11.MapMode VdToD3D11MapMode(bool isDynamic, MapMode mode)
+        internal static DXMapMode VdToD3D11MapMode(bool isDynamic, MapMode mode)
         {
             return mode switch
             {
@@ -533,7 +534,7 @@ namespace Veldrid.D3D11
             };
         }
 
-        internal static Vortice.Direct3D.PrimitiveTopology VdToD3D11PrimitiveTopology(PrimitiveTopology primitiveTopology)
+        internal static DXPrimitiveTopology VdToD3D11PrimitiveTopology(PrimitiveTopology primitiveTopology)
         {
             return primitiveTopology switch
             {
