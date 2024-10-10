@@ -3,22 +3,22 @@ using System.Runtime.InteropServices;
 
 namespace Veldrid.MetalBindings
 {
-    public static unsafe class Dispatch
+    public static unsafe partial class Dispatch
     {
         private const string LibdispatchLocation = @"/usr/lib/system/libdispatch.dylib";
 
-        [DllImport(LibdispatchLocation)]
-        public static extern DispatchQueue dispatch_get_global_queue(QualityOfServiceLevel identifier, ulong flags);
+        [LibraryImport(LibdispatchLocation)]
+        public static partial DispatchQueue dispatch_get_global_queue(QualityOfServiceLevel identifier, ulong flags);
 
-        [DllImport(LibdispatchLocation)]
-        public static extern DispatchData dispatch_data_create(
+        [LibraryImport(LibdispatchLocation)]
+        public static partial DispatchData dispatch_data_create(
             void* buffer,
             UIntPtr size,
             DispatchQueue queue,
             IntPtr destructorBlock);
 
-        [DllImport(LibdispatchLocation)]
-        public static extern void dispatch_release(IntPtr nativePtr);
+        [LibraryImport(LibdispatchLocation)]
+        public static partial void dispatch_release(IntPtr nativePtr);
     }
 
     public enum QualityOfServiceLevel : long

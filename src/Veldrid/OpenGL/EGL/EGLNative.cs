@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Veldrid.OpenGL.EGL
 {
-    internal static unsafe class EGLNative
+    internal static unsafe partial class EGLNative
     {
         private const string LibName = "libEGL.so";
 
@@ -28,58 +28,58 @@ namespace Veldrid.OpenGL.EGL
         public const int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
         public const int EGL_CONTEXT_OPENGL_DEBUG = 0x31B0;
 
-        [DllImport(LibName)]
-        public static extern EGLError eglGetError();
-        [DllImport(LibName)]
-        public static extern IntPtr eglGetCurrentContext();
-        [DllImport(LibName)]
-        public static extern int eglDestroyContext(IntPtr display, IntPtr context);
-        [DllImport(LibName)]
-        public static extern int eglDestroySurface(IntPtr display, IntPtr surface);
-        [DllImport(LibName)]
-        public static extern int eglTerminate(IntPtr display);
-        [DllImport(LibName)]
-        public static extern int eglMakeCurrent(IntPtr display, IntPtr draw, IntPtr read, IntPtr context);
-        [DllImport(LibName)]
-        public static extern int eglChooseConfig(IntPtr display, int* attrib_list, IntPtr* configs, int config_size, int* num_config);
-        [DllImport(LibName)]
-        public static extern IntPtr eglGetProcAddress(string name);
-        [DllImport(LibName)]
-        public static extern IntPtr eglGetCurrentDisplay();
-        [DllImport(LibName)]
-        public static extern IntPtr eglGetDisplay(int native_display);
-        [DllImport(LibName)]
-        public static extern IntPtr eglGetCurrentSurface(int readdraw);
-        [DllImport(LibName)]
-        public static extern int eglInitialize(IntPtr display, int* major, int* minor);
+        [LibraryImport(LibName)]
+        public static partial EGLError eglGetError();
+        [LibraryImport(LibName)]
+        public static partial IntPtr eglGetCurrentContext();
+        [LibraryImport(LibName)]
+        public static partial int eglDestroyContext(IntPtr display, IntPtr context);
+        [LibraryImport(LibName)]
+        public static partial int eglDestroySurface(IntPtr display, IntPtr surface);
+        [LibraryImport(LibName)]
+        public static partial int eglTerminate(IntPtr display);
+        [LibraryImport(LibName)]
+        public static partial int eglMakeCurrent(IntPtr display, IntPtr draw, IntPtr read, IntPtr context);
+        [LibraryImport(LibName)]
+        public static partial int eglChooseConfig(IntPtr display, int* attrib_list, IntPtr* configs, int config_size, int* num_config);
+        [LibraryImport(LibName, StringMarshalling = StringMarshalling.Utf8)]
+        public static partial IntPtr eglGetProcAddress(string name);
+        [LibraryImport(LibName)]
+        public static partial IntPtr eglGetCurrentDisplay();
+        [LibraryImport(LibName)]
+        public static partial IntPtr eglGetDisplay(int native_display);
+        [LibraryImport(LibName)]
+        public static partial IntPtr eglGetCurrentSurface(int readdraw);
+        [LibraryImport(LibName)]
+        public static partial int eglInitialize(IntPtr display, int* major, int* minor);
 
-        [DllImport(LibName)]
-        public static extern IntPtr eglCreateWindowSurface(
+        [LibraryImport(LibName)]
+        public static partial IntPtr eglCreateWindowSurface(
             IntPtr display,
             IntPtr config,
             IntPtr native_window,
             int* attrib_list);
 
-        [DllImport(LibName)]
-        public static extern IntPtr eglCreatePbufferSurface(
+        [LibraryImport(LibName)]
+        public static partial IntPtr eglCreatePbufferSurface(
             IntPtr display,
             IntPtr config,
             int* attrib_list);
 
-        [DllImport(LibName)]
-        public static extern IntPtr eglCreateContext(IntPtr display,
+        [LibraryImport(LibName)]
+        public static partial IntPtr eglCreateContext(IntPtr display,
             IntPtr config,
             IntPtr share_context,
             int* attrib_list);
-        [DllImport(LibName)]
-        public static extern int eglSwapBuffers(IntPtr display, IntPtr surface);
-        [DllImport(LibName)]
-        public static extern int eglSwapInterval(IntPtr display, int value);
-        [DllImport(LibName)]
-        public static extern int eglGetConfigAttrib(IntPtr display, IntPtr config, int attribute, int* value);
+        [LibraryImport(LibName)]
+        public static partial int eglSwapBuffers(IntPtr display, IntPtr surface);
+        [LibraryImport(LibName)]
+        public static partial int eglSwapInterval(IntPtr display, int value);
+        [LibraryImport(LibName)]
+        public static partial int eglGetConfigAttrib(IntPtr display, IntPtr config, int attribute, int* value);
 
-        [DllImport(LibName)]
-        public static extern int eglQuerySurface(
+        [LibraryImport(LibName)]
+        public static partial int eglQuerySurface(
             IntPtr display,
             IntPtr surface,
             int attribute,

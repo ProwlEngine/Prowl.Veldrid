@@ -1,10 +1,11 @@
 using System;
 using System.Runtime.InteropServices;
+
 using static Veldrid.MetalBindings.ObjectiveCRuntime;
 
 namespace Veldrid.MetalBindings
 {
-    public readonly unsafe struct MTLDevice
+    public readonly unsafe partial struct MTLDevice
     {
         private const string MetalFramework = "/System/Library/Frameworks/Metal.framework/Metal";
 
@@ -127,16 +128,16 @@ namespace Veldrid.MetalBindings
             => bool8_objc_msgSend(NativePtr, sel_supportsTextureSampleCount, sampleCount);
 
         public Bool8 supportsFeatureSet(MTLFeatureSet featureSet)
-            => bool8_objc_msgSend(NativePtr, sel_supportsFeatureSet, (uint) featureSet);
+            => bool8_objc_msgSend(NativePtr, sel_supportsFeatureSet, (uint)featureSet);
 
         public Bool8 isDepth24Stencil8PixelFormatSupported
             => bool8_objc_msgSend(NativePtr, sel_isDepth24Stencil8PixelFormatSupported);
 
-        [DllImport(MetalFramework)]
-        public static extern MTLDevice MTLCreateSystemDefaultDevice();
+        [LibraryImport(MetalFramework)]
+        public static partial MTLDevice MTLCreateSystemDefaultDevice();
 
-        [DllImport(MetalFramework)]
-        public static extern NSArray MTLCopyAllDevices();
+        [LibraryImport(MetalFramework)]
+        public static partial NSArray MTLCopyAllDevices();
 
         private static readonly Selector sel_name = "name"u8;
         private static readonly Selector sel_maxThreadsPerThreadgroup = "maxThreadsPerThreadgroup"u8;

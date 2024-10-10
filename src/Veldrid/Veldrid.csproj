@@ -1,13 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <!--
-            TODO: Specifying the version here is required so that including the Veldrid.SPIRV package works.
-            Why are we doing this and not using the version in modules? Because I don't want to compile the native libraries.
-            Does this work? Yes.
-            Is this hacky? Definitely, but hopefully we won't need to do this when we move to a custom compiler.
-        -->
-        <Version>4.8.0.0</Version>
         <AssemblyName>Veldrid</AssemblyName>
 
         <NoWarn Condition="'$(Configuration)' == 'Debug'">1591</NoWarn>
@@ -17,6 +10,10 @@
         <DefineConstants Condition="'$(ExcludeVulkan)' == 'true'">$(DefineConstants);EXCLUDE_VULKAN_BACKEND</DefineConstants>
         <DefineConstants Condition="'$(ExcludeMetal)' == 'true'">$(DefineConstants);EXCLUDE_METAL_BACKEND</DefineConstants>
         <DefineConstants Condition="'$(ExcludeOpenGL)' == 'true'">$(DefineConstants);EXCLUDE_OPENGL_BACKEND</DefineConstants>
+    </PropertyGroup>
+
+        <PropertyGroup>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>
