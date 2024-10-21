@@ -37,7 +37,9 @@ namespace Veldrid
         private DeviceBuffer? _indexBuffer;
         private IndexFormat _indexFormat;
 #endif
-
+		
+		public Framebuffer? CurrentFramebuffer => _framebuffer;
+		
         internal CommandList(
             in CommandListDescription description,
             GraphicsDeviceFeatures features,
