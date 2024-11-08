@@ -80,21 +80,59 @@ namespace Veldrid
         /// <returns>True if all elements and all array elements are equal; false otherswise.</returns>
         public bool Equals(OutputDescription other)
         {
-            return DepthAttachment.GetValueOrDefault().Equals(other.DepthAttachment.GetValueOrDefault())
+            // Handle case where one is null and other isn't
+            if (DepthAttachment.HasValue != other.DepthAttachment.HasValue)
+                return false;
+
+            // Both null or both have value
+            bool depthEqual = !DepthAttachment.HasValue ||
+                             DepthAttachment.Value.Equals(other.DepthAttachment.Value);
+
+            // Handle null ColorAttachments
+            if (ColorAttachments == null && other.ColorAttachments == null)
+                return depthEqual && SampleCount == other.SampleCount;
+
+            if (ColorAttachments == null || other.ColorAttachments == null)
+                return false;
+
+            return depthEqual
                 && Util.ArrayEqualsEquatable(ColorAttachments, other.ColorAttachments)
                 && SampleCount == other.SampleCount;
         }
 
         /// <summary>
-        /// Returns the hash code for this instance.
+        /// Element-wise equality.
         /// </summary>
-        /// <returns>A 32-bit signed integer that is the hash code for this instance.</returns>
+        /// <param name="other">The instance to compare to.</param>
+        /// <returns>True if all elements and all array elements are equal; false otherswise.</returns>
+        public override bool Equals(object? obj)
+        {
+            return obj is OutputDescription other && Equals(other);
+        }
+
         public override int GetHashCode()
         {
-            return HashHelper.Combine(
-                DepthAttachment.GetHashCode(),
-                HashHelper.Array(ColorAttachments),
-                (int)SampleCount);
+            HashCode hash = new();
+
+            if (DepthAttachment.HasValue)
+                hash.Add(DepthAttachment.Value);
+
+            if (ColorAttachments != null)
+                hash.Add(HashHelper.Array(ColorAttachments));
+
+            hash.Add(SampleCount);
+
+            return hash.ToHashCode();
+        }
+
+        public static bool operator ==(OutputDescription left, OutputDescription right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(OutputDescription left, OutputDescription right)
+        {
+            return !(left == right);
         }
     }
 }
