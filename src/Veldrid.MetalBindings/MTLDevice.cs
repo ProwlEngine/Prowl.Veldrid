@@ -36,11 +36,11 @@ namespace Veldrid.MetalBindings
         {
             NSString sourceNSS = NSString.New(source);
 
-            NSError error;
+            // NSError error;
             IntPtr library = IntPtr_objc_msgSend(NativePtr, sel_newLibraryWithSource,
                 sourceNSS,
                 options,
-                &error);
+                out NSError error);
 
             release(sourceNSS.NativePtr);
 
@@ -54,8 +54,8 @@ namespace Veldrid.MetalBindings
 
         public MTLLibrary newLibraryWithData(DispatchData data)
         {
-            NSError error;
-            IntPtr library = IntPtr_objc_msgSend(NativePtr, sel_newLibraryWithData, data.NativePtr, &error);
+            // NSError error;
+            IntPtr library = IntPtr_objc_msgSend(NativePtr, sel_newLibraryWithData, data.NativePtr, out NSError error);
 
             if (library == IntPtr.Zero)
             {
@@ -67,10 +67,10 @@ namespace Veldrid.MetalBindings
 
         public MTLRenderPipelineState newRenderPipelineStateWithDescriptor(MTLRenderPipelineDescriptor desc)
         {
-            NSError error;
+            // NSError error;
             IntPtr ret = IntPtr_objc_msgSend(NativePtr, sel_newRenderPipelineStateWithDescriptor,
                 desc.NativePtr,
-                &error);
+                out NSError error);
 
             if (error.NativePtr != IntPtr.Zero)
             {
@@ -83,12 +83,12 @@ namespace Veldrid.MetalBindings
         public MTLComputePipelineState newComputePipelineStateWithDescriptor(
             MTLComputePipelineDescriptor descriptor)
         {
-            NSError error;
+            // NSError error;
             IntPtr ret = IntPtr_objc_msgSend(NativePtr, sel_newComputePipelineStateWithDescriptor,
                 descriptor,
                 0,
                 IntPtr.Zero,
-                &error);
+                out NSError error);
 
             if (error.NativePtr != IntPtr.Zero)
             {

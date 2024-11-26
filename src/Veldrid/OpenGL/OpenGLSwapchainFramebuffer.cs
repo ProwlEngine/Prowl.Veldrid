@@ -1,4 +1,6 @@
 ﻿
+using System.Linq;
+
 namespace Veldrid.OpenGL
 {
     internal sealed class OpenGLSwapchainFramebuffer : Framebuffer
@@ -37,7 +39,7 @@ namespace Veldrid.OpenGL
                 colorFormat,
                 TextureUsage.RenderTarget,
                 TextureSampleCount.Count1);
-            _colorTargets = new[] { new FramebufferAttachment(_colorTexture, 0) };
+            ColorTargets = new[] { new FramebufferAttachment(_colorTexture, 0) }.ToList();
 
             if (_depthFormat != null)
             {
@@ -47,7 +49,7 @@ namespace Veldrid.OpenGL
                     _depthFormat.Value,
                     TextureUsage.DepthStencil,
                     TextureSampleCount.Count1);
-                _depthTarget = new FramebufferAttachment(_depthTexture, 0);
+                DepthTarget = new FramebufferAttachment(_depthTexture, 0);
             }
 
             OutputDescription = OutputDescription.CreateFromFramebuffer(this);

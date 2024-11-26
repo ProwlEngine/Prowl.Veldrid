@@ -56,9 +56,9 @@ namespace Veldrid.MetalBindings
 
         public ObjectiveCMethod* class_copyMethodList(out uint count)
         {
-            uint result = 0;
-            ObjectiveCMethod* ret = ObjectiveCRuntime.class_copyMethodList(this, &result);
-            count = result;
+            // uint result = 0;
+            ObjectiveCMethod* ret = ObjectiveCRuntime.class_copyMethodList(this, out count);
+            // count = result;
             return ret;
         }
     }

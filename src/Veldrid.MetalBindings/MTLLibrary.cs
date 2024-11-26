@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+
 using static Veldrid.MetalBindings.ObjectiveCRuntime;
 
 namespace Veldrid.MetalBindings
@@ -21,13 +22,13 @@ namespace Veldrid.MetalBindings
         public unsafe MTLFunction newFunctionWithNameConstantValues(string name, MTLFunctionConstantValues constantValues)
         {
             NSString nameNSS = NSString.New(name);
-            NSError error;
+            // NSError error;
             IntPtr function = IntPtr_objc_msgSend(
                 NativePtr,
                 sel_newFunctionWithNameConstantValues,
                 nameNSS.NativePtr,
                 constantValues.NativePtr,
-                &error);
+                out NSError error);
             release(nameNSS.NativePtr);
 
             if (function == IntPtr.Zero)

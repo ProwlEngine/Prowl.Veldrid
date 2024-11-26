@@ -395,46 +395,46 @@ namespace Veldrid.D3D11
                 switch (rbi.Kind)
                 {
                     case ResourceKind.UniformBuffer:
-                    {
-                        D3D11BufferRange range = GetBufferRange(resource, bufferOffset);
-                        BindUniformBuffer(range, slotBase + rbi.Slot, rbi.Stages);
-                        break;
-                    }
+                        {
+                            D3D11BufferRange range = GetBufferRange(resource, bufferOffset);
+                            BindUniformBuffer(range, slotBase + rbi.Slot, rbi.Stages);
+                            break;
+                        }
                     case ResourceKind.StructuredBufferReadOnly:
-                    {
-                        D3D11BufferRange range = GetBufferRange(resource, bufferOffset);
-                        BindStorageBufferView(range, slotBase + rbi.Slot, rbi.Stages);
-                        break;
-                    }
+                        {
+                            D3D11BufferRange range = GetBufferRange(resource, bufferOffset);
+                            BindStorageBufferView(range, slotBase + rbi.Slot, rbi.Stages);
+                            break;
+                        }
                     case ResourceKind.StructuredBufferReadWrite:
-                    {
-                        D3D11BufferRange range = GetBufferRange(resource, bufferOffset);
-                        ID3D11UnorderedAccessView uav = range.Buffer.GetUnorderedAccessView(range.Offset, range.Size);
-                        BindUnorderedAccessView(null, range.Buffer, uav, slotBase + rbi.Slot, rbi.Stages, slot);
-                        break;
-                    }
+                        {
+                            D3D11BufferRange range = GetBufferRange(resource, bufferOffset);
+                            ID3D11UnorderedAccessView uav = range.Buffer.GetUnorderedAccessView(range.Offset, range.Size);
+                            BindUnorderedAccessView(null, range.Buffer, uav, slotBase + rbi.Slot, rbi.Stages, slot);
+                            break;
+                        }
                     case ResourceKind.TextureReadOnly:
-                    {
-                        TextureView texView = Util.GetTextureView(_gd, resource);
-                        D3D11TextureView d3d11TexView = Util.AssertSubtype<TextureView, D3D11TextureView>(texView);
-                        UnbindUAVTexture(d3d11TexView.Target);
-                        BindTextureView(d3d11TexView, slotBase + rbi.Slot, rbi.Stages, slot);
-                        break;
-                    }
+                        {
+                            TextureView texView = Util.GetTextureView(_gd, resource);
+                            D3D11TextureView d3d11TexView = Util.AssertSubtype<TextureView, D3D11TextureView>(texView);
+                            UnbindUAVTexture(d3d11TexView.Target);
+                            BindTextureView(d3d11TexView, slotBase + rbi.Slot, rbi.Stages, slot);
+                            break;
+                        }
                     case ResourceKind.TextureReadWrite:
-                    {
-                        TextureView rwTexView = Util.GetTextureView(_gd, resource);
-                        D3D11TextureView d3d11RWTexView = Util.AssertSubtype<TextureView, D3D11TextureView>(rwTexView);
-                        UnbindSRVTexture(d3d11RWTexView.Target);
-                        BindUnorderedAccessView(d3d11RWTexView.Target, null, d3d11RWTexView.UnorderedAccessView, slotBase + rbi.Slot, rbi.Stages, slot);
-                        break;
-                    }
+                        {
+                            TextureView rwTexView = Util.GetTextureView(_gd, resource);
+                            D3D11TextureView d3d11RWTexView = Util.AssertSubtype<TextureView, D3D11TextureView>(rwTexView);
+                            UnbindSRVTexture(d3d11RWTexView.Target);
+                            BindUnorderedAccessView(d3d11RWTexView.Target, null, d3d11RWTexView.UnorderedAccessView, slotBase + rbi.Slot, rbi.Stages, slot);
+                            break;
+                        }
                     case ResourceKind.Sampler:
-                    {
-                        D3D11Sampler sampler = Util.AssertSubtype<Sampler, D3D11Sampler>(resource.GetSampler());
-                        BindSampler(sampler, slotBase + rbi.Slot, rbi.Stages);
-                        break;
-                    }
+                        {
+                            D3D11Sampler sampler = Util.AssertSubtype<Sampler, D3D11Sampler>(resource.GetSampler());
+                            BindSampler(sampler, slotBase + rbi.Slot, rbi.Stages);
+                            break;
+                        }
                     default:
                         Illegal.Value<ResourceKind>();
                         break;
@@ -978,7 +978,7 @@ namespace Veldrid.D3D11
             int baseSlot = 0;
             if (!compute && _fragmentBoundSamplers != null)
             {
-                baseSlot = _framebuffer!.ColorTargets.Length;
+                baseSlot = _framebuffer!.ColorTargets.Count;
             }
             int actualSlot = baseSlot + slot;
 
@@ -1101,14 +1101,14 @@ namespace Veldrid.D3D11
                 _referencedSwapchains.Add(d3dFB.Swapchain);
             }
 
-            foreach (ref readonly FramebufferAttachment colorTarget in fb.ColorTargets)
+            foreach (FramebufferAttachment colorTarget in fb.ColorTargets)
             {
                 UnbindSRVTexture(colorTarget.Target);
             }
 
             _context.OMSetRenderTargets(d3dFB.RenderTargetViews, d3dFB.DepthStencilView);
 
-            _viewportCount = Math.Max(1u, (uint)fb.ColorTargets.Length);
+            _viewportCount = Math.Max(1u, (uint)fb.ColorTargets.Count);
             Util.EnsureArrayMinimumSize(ref _viewports, _viewportCount);
             Util.ClearArray(_viewports);
             Util.EnsureArrayMinimumSize(ref _scissors, _viewportCount);

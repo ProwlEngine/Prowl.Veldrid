@@ -62,7 +62,7 @@ namespace Veldrid
                 sampleCount = fbDepthAttachment.GetValueOrDefault().Target.SampleCount;
             }
 
-            ReadOnlySpan<FramebufferAttachment> fbColorAttachments = fb.ColorTargets;
+            ReadOnlySpan<FramebufferAttachment> fbColorAttachments = fb.ColorTargets.ToArray();
             OutputAttachmentDescription[] colorAttachments = new OutputAttachmentDescription[fbColorAttachments.Length];
             for (int i = 0; i < colorAttachments.Length; i++)
             {

@@ -15,7 +15,7 @@ namespace Veldrid
     /// NOTE: The use of <see cref="CommandList"/> is not thread-safe. Access to the <see cref="CommandList"/> must be
     /// externally synchronized.
     /// There are some limitations dictating proper usage and ordering of graphics commands. For example, a
-    /// <see cref="Framebuffer"/>, <see cref="Pipeline"/>, vertex buffer, and index buffer must all be
+    /// <see cref="Veldrid.Framebuffer"/>, <see cref="Pipeline"/>, vertex buffer, and index buffer must all be
     /// bound before a call to <see cref="DrawIndexed(uint, uint, uint, int, uint)"/> will succeed.
     /// These limitations are described in each function, where applicable.
     /// <see cref="CommandList"/> instances cannot be executed multiple times per-recording. When executed by a
@@ -37,9 +37,9 @@ namespace Veldrid
         private DeviceBuffer? _indexBuffer;
         private IndexFormat _indexFormat;
 #endif
-		
-		public Framebuffer? CurrentFramebuffer => _framebuffer;
-		
+
+        public Framebuffer? Framebuffer => _framebuffer;
+
         internal CommandList(
             in CommandListDescription description,
             GraphicsDeviceFeatures features,
@@ -83,7 +83,7 @@ namespace Veldrid
 
         /// <summary>
         /// Sets the active <see cref="Pipeline"/> used for rendering.
-        /// When drawing, the active <see cref="Pipeline"/> must be compatible with the bound <see cref="Framebuffer"/>,
+        /// When drawing, the active <see cref="Pipeline"/> must be compatible with the bound <see cref="Veldrid.Framebuffer"/>,
         /// <see cref="ResourceSet"/>, and <see cref="DeviceBuffer"/> objects.
         /// When a new Pipeline is set, the previously-bound ResourceSets on this CommandList become invalidated and must be
         /// re-bound.
@@ -414,11 +414,11 @@ namespace Veldrid
         protected abstract void SetComputeResourceSetCore(uint slot, ResourceSet set, ReadOnlySpan<uint> dynamicOffsets);
 
         /// <summary>
-        /// Sets the active <see cref="Framebuffer"/> which will be rendered to.
-        /// When drawing, the active <see cref="Framebuffer"/> must be compatible with the active <see cref="Pipeline"/>.
+        /// Sets the active <see cref="Veldrid.Framebuffer"/> which will be rendered to.
+        /// When drawing, the active <see cref="Veldrid.Framebuffer"/> must be compatible with the active <see cref="Pipeline"/>.
         /// A compatible <see cref="Pipeline"/> has the same number of output attachments with matching formats.
         /// </summary>
-        /// <param name="fb">The new <see cref="Framebuffer"/>.</param>
+        /// <param name="fb">The new <see cref="Veldrid.Framebuffer"/>.</param>
         public void SetFramebuffer(Framebuffer fb)
         {
             if (_framebuffer != fb)
@@ -431,14 +431,14 @@ namespace Veldrid
         }
 
         /// <summary>
-        /// Performs API-specific handling of the <see cref="Framebuffer"/> resource.
+        /// Performs API-specific handling of the <see cref="Veldrid.Framebuffer"/> resource.
         /// </summary>
         /// <param name="fb"></param>
         protected abstract void SetFramebufferCore(Framebuffer fb);
 
         /// <summary>
-        /// Clears the color target at the given index of the active <see cref="Framebuffer"/>.
-        /// The index given must be less than the number of color attachments in the active <see cref="Framebuffer"/>.
+        /// Clears the color target at the given index of the active <see cref="Veldrid.Framebuffer"/>.
+        /// The index given must be less than the number of color attachments in the active <see cref="Veldrid.Framebuffer"/>.
         /// </summary>
         /// <param name="index">The color target index.</param>
         /// <param name="clearColor">The value to clear the target to.</param>
@@ -455,7 +455,7 @@ namespace Veldrid
                 Throw();
             }
 
-            if (_framebuffer.ColorTargets.Length <= index)
+            if (_framebuffer.ColorTargets.Count <= index)
             {
                 static void Throw()
                 {
@@ -471,8 +471,8 @@ namespace Veldrid
         private protected abstract void ClearColorTargetCore(uint index, RgbaFloat clearColor);
 
         /// <summary>
-        /// Clears the depth-stencil target of the active <see cref="Framebuffer"/>.
-        /// The active <see cref="Framebuffer"/> must have a depth attachment.
+        /// Clears the depth-stencil target of the active <see cref="Veldrid.Framebuffer"/>.
+        /// The active <see cref="Veldrid.Framebuffer"/> must have a depth attachment.
         /// With this overload, the stencil buffer is cleared to 0.
         /// </summary>
         /// <param name="depth">The value to clear the depth buffer to.</param>
@@ -482,8 +482,8 @@ namespace Veldrid
         }
 
         /// <summary>
-        /// Clears the depth-stencil target of the active <see cref="Framebuffer"/>.
-        /// The active <see cref="Framebuffer"/> must have a depth attachment.
+        /// Clears the depth-stencil target of the active <see cref="Veldrid.Framebuffer"/>.
+        /// The active <see cref="Veldrid.Framebuffer"/> must have a depth attachment.
         /// </summary>
         /// <param name="depth">The value to clear the depth buffer to.</param>
         /// <param name="stencil">The value to clear the stencil buffer to.</param>
@@ -517,14 +517,14 @@ namespace Veldrid
         private protected abstract void ClearDepthStencilCore(float depth, byte stencil);
 
         /// <summary>
-        /// Sets all active viewports to cover the entire active <see cref="Framebuffer"/>.
+        /// Sets all active viewports to cover the entire active <see cref="Veldrid.Framebuffer"/>.
         /// </summary>
         public void SetFullViewports()
         {
             Viewport viewport = new(0, 0, _framebuffer!.Width, _framebuffer.Height, 0, 1);
             SetViewport(0, viewport);
 
-            int length = _framebuffer.ColorTargets.Length;
+            int length = _framebuffer.ColorTargets.Count;
             for (uint index = 1; index < length; index++)
             {
                 SetViewport(index, viewport);
@@ -532,7 +532,7 @@ namespace Veldrid
         }
 
         /// <summary>
-        /// Sets the active viewport at the given index to cover the entire active <see cref="Framebuffer"/>.
+        /// Sets the active viewport at the given index to cover the entire active <see cref="Veldrid.Framebuffer"/>.
         /// </summary>
         /// <param name="index">The color target index.</param>
         public void SetFullViewport(uint index)
@@ -548,7 +548,7 @@ namespace Veldrid
         {
             SetViewport(0, viewport);
 
-            int length = _framebuffer!.ColorTargets.Length;
+            int length = _framebuffer!.ColorTargets.Count;
             for (uint index = 1; index < length; index++)
             {
                 SetViewport(index, viewport);
@@ -557,14 +557,14 @@ namespace Veldrid
 
         /// <summary>
         /// Sets the active <see cref="Viewport"/> at the given index.
-        /// The index given must be less than the number of color attachments in the active <see cref="Framebuffer"/>.
+        /// The index given must be less than the number of color attachments in the active <see cref="Veldrid.Framebuffer"/>.
         /// </summary>
         /// <param name="index">The color target index.</param>
         /// <param name="viewport">The new <see cref="Viewport"/>.</param>
         public abstract void SetViewport(uint index, in Viewport viewport);
 
         /// <summary>
-        /// Sets all active scissor rectangles to cover the active <see cref="Framebuffer"/>.
+        /// Sets all active scissor rectangles to cover the active <see cref="Veldrid.Framebuffer"/>.
         /// </summary>
         public void SetFullScissorRects()
         {
@@ -572,7 +572,7 @@ namespace Veldrid
             uint height = _framebuffer.Height;
             SetScissorRect(0, 0, 0, width, height);
 
-            int length = _framebuffer.ColorTargets.Length;
+            int length = _framebuffer.ColorTargets.Count;
             for (uint index = 1; index < length; index++)
             {
                 SetScissorRect(index, 0, 0, width, height);
@@ -580,7 +580,7 @@ namespace Veldrid
         }
 
         /// <summary>
-        /// Sets the active scissor rectangle at the given index to cover the active <see cref="Framebuffer"/>.
+        /// Sets the active scissor rectangle at the given index to cover the active <see cref="Veldrid.Framebuffer"/>.
         /// </summary>
         /// <param name="index">The color target index.</param>
         public void SetFullScissorRect(uint index)
@@ -589,13 +589,13 @@ namespace Veldrid
         }
 
         /// <summary>
-        /// Sets all active scissor rectangles to cover the active <see cref="Framebuffer"/>.
+        /// Sets all active scissor rectangles to cover the active <see cref="Veldrid.Framebuffer"/>.
         /// </summary>
         public void SetScissorRects(uint x, uint y, uint width, uint height)
         {
             SetScissorRect(0, x, y, width, height);
 
-            int length = _framebuffer!.ColorTargets.Length;
+            int length = _framebuffer!.ColorTargets.Count;
             for (uint index = 1; index < length; index++)
             {
                 SetScissorRect(index, 0, 0, width, height);
@@ -604,7 +604,7 @@ namespace Veldrid
 
         /// <summary>
         /// Sets the active scissor rectangle at the given index.
-        /// The index given must be less than the number of color attachments in the active <see cref="Framebuffer"/>.
+        /// The index given must be less than the number of color attachments in the active <see cref="Veldrid.Framebuffer"/>.
         /// </summary>
         /// <param name="index">The color target index.</param>
         /// <param name="x">The X value of the scissor rectangle.</param>
@@ -1589,7 +1589,7 @@ namespace Veldrid
                 [DoesNotReturn]
                 static void Throw()
                 {
-                    throw new VeldridException($"A {nameof(Framebuffer)} must be set in order to issue draw commands.");
+                    throw new VeldridException($"A {nameof(Veldrid.Framebuffer)} must be set in order to issue draw commands.");
                 }
                 Throw();
             }
@@ -1600,8 +1600,8 @@ namespace Veldrid
                 static void Throw()
                 {
                     throw new VeldridException(
-                        $"The {nameof(OutputDescription)} of the current graphics {nameof(Pipeline)} " +
-                        $"is not compatible with the current {nameof(Framebuffer)}.");
+                        $"The {nameof(Veldrid.OutputDescription)} of the current graphics {nameof(Veldrid.Pipeline)} " +
+                        $"is not compatible with the current {nameof(Veldrid.Framebuffer)}.");
                 }
                 Throw();
             }

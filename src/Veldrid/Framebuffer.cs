@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Veldrid
 {
@@ -9,38 +11,44 @@ namespace Veldrid
     /// </summary>
     public abstract class Framebuffer : DeviceResource, IDisposable
     {
-        protected FramebufferAttachment? _depthTarget;
-        protected FramebufferAttachment[] _colorTargets = Array.Empty<FramebufferAttachment>();
-
         /// <summary>
         /// Gets the depth attachment associated with this instance. May be null if no depth texture is used.
         /// </summary>
-        public FramebufferAttachment? DepthTarget => _depthTarget;
+        public virtual FramebufferAttachment? DepthTarget { get; set; }
 
         /// <summary>
         /// Gets the collection of color attachments associated with this instance. May be empty.
         /// </summary>
-        public ReadOnlySpan<FramebufferAttachment> ColorTargets => _colorTargets;
+        public virtual List<FramebufferAttachment> ColorTargets { get; set; }
 
         /// <summary>
         /// Gets an <see cref="Veldrid.OutputDescription"/> which describes the number and formats of the depth and color targets
         /// in this instance.
         /// </summary>
-        public OutputDescription OutputDescription { get; protected set; }
+        public virtual OutputDescription OutputDescription { get; protected set; }
 
         /// <summary>
         /// Gets the width of the <see cref="Framebuffer"/>.
         /// </summary>
-        public uint Width { get; protected set; }
+        public virtual uint Width { get; protected set; }
 
         /// <summary>
         /// Gets the height of the <see cref="Framebuffer"/>.
         /// </summary>
-        public uint Height { get; protected set; }
+        public virtual uint Height { get; protected set; }
 
-        internal Framebuffer()
-        {
-        }
+        /// <summary>
+        ///     A bool indicating whether this instance has been disposed.
+        /// </summary>
+        public abstract bool IsDisposed { get; }
+
+        /// <summary>
+        ///     A string identifying this instance. Can be used to differentiate between objects in graphics debuggers and other
+        ///     tools.
+        /// </summary>
+        public abstract string? Name { get; set; }
+
+        internal Framebuffer() { }
 
         internal Framebuffer(
             FramebufferAttachmentDescription? depthTargetDesc,
@@ -49,13 +57,13 @@ namespace Veldrid
             if (depthTargetDesc != null)
             {
                 FramebufferAttachmentDescription depthAttachment = depthTargetDesc.Value;
-                _depthTarget = new FramebufferAttachment(
+                DepthTarget = new FramebufferAttachment(
                     depthAttachment.Target,
                     depthAttachment.ArrayLayer,
                     depthAttachment.MipLevel);
             }
 
-            FramebufferAttachment[] colorTargets = new FramebufferAttachment[colorTargetDescs.Length];
+            var colorTargets = new FramebufferAttachment[colorTargetDescs.Length];
             for (int i = 0; i < colorTargets.Length; i++)
             {
                 colorTargets[i] = new FramebufferAttachment(
@@ -64,35 +72,28 @@ namespace Veldrid
                     colorTargetDescs[i].MipLevel);
             }
 
+            ColorTargets = colorTargets.ToList();
+
             Texture dimTex;
             uint mipLevel;
-            if (colorTargets.Length > 0)
+            if (ColorTargets.Count > 0)
             {
-                dimTex = colorTargets[0].Target;
-                mipLevel = colorTargets[0].MipLevel;
+                dimTex = ColorTargets[0].Target;
+                mipLevel = ColorTargets[0].MipLevel;
             }
             else
             {
-                Debug.Assert(_depthTarget != null);
-                dimTex = _depthTarget.Value.Target;
-                mipLevel = _depthTarget.Value.MipLevel;
+                Debug.Assert(DepthTarget != null);
+                dimTex = DepthTarget.Value.Target;
+                mipLevel = DepthTarget.Value.MipLevel;
             }
 
             Util.GetMipDimensions(dimTex, mipLevel, out uint mipWidth, out uint mipHeight);
             Width = mipWidth;
             Height = mipHeight;
 
-            _colorTargets = colorTargets;
             OutputDescription = OutputDescription.CreateFromFramebuffer(this);
         }
-
-        /// <inheritdoc/>
-        public abstract string? Name { get; set; }
-
-        /// <summary>
-        /// A bool indicating whether this instance has been disposed.
-        /// </summary>
-        public abstract bool IsDisposed { get; }
 
         /// <summary>
         /// Frees unmanaged device resources controlled by this instance.

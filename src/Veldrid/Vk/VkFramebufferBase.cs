@@ -1,4 +1,5 @@
 ﻿using System;
+
 using TerraFX.Interop.Vulkan;
 
 namespace Veldrid.Vulkan
@@ -41,7 +42,7 @@ namespace Veldrid.Vulkan
         public abstract void TransitionToIntermediateLayout(VkCommandBuffer cb);
         public abstract void TransitionToFinalLayout(VkCommandBuffer cb, bool attachment);
 
-        public FramebufferAttachment[] ColorTargetArray => _colorTargets;
+        public FramebufferAttachment[] ColorTargetArray => ColorTargets.ToArray();
 
         void IResourceRefCountTarget.RefZeroed()
         {

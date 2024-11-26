@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+
 using Veldrid.MetalBindings;
 
 namespace Veldrid.MTL

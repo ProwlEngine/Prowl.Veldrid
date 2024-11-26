@@ -16,10 +16,13 @@ namespace Veldrid
         internal static TDerived AssertSubtype<TBase, TDerived>(TBase? value) where TDerived : class, TBase where TBase : class
         {
 #if DEBUG
-            if (value is not TDerived derived)
-            {
-                throw new VeldridException($"object {value} must be derived type {typeof(TDerived).FullName} to be used in this context.");
-            }
+            // if (value is not TDerived derived)
+            // {
+            //     throw new VeldridException($"object {value} must be derived type {typeof(TDerived).FullName} to be used in this context.");
+            // }
+            if (value == null) throw new VeldridException($"Expected object of type {typeof(TDerived).FullName} but received null instead.");
+
+            if (!(value is TDerived derived)) throw new VeldridException($"object {value} must be derived type {typeof(TDerived).FullName} to be used in this context.");
 
             return derived;
 
@@ -34,6 +37,11 @@ namespace Veldrid
             {
                 Array.Resize(ref array, (int)size);
             }
+        }
+
+        internal static uint USizeOf<T>() where T : struct
+        {
+            return (uint)Unsafe.SizeOf<T>();
         }
 
         internal static unsafe string GetString(byte* stringStart)
@@ -55,7 +63,7 @@ namespace Veldrid
             }
             return Encoding.UTF8.GetString(span.Slice(0, length));
         }
-        
+
         internal static unsafe string GetString(ReadOnlySpan<sbyte> span)
         {
             return GetString(MemoryMarshal.AsBytes(span));

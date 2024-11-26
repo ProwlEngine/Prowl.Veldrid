@@ -3,13 +3,75 @@ using System.Diagnostics;
 
 namespace Veldrid
 {
+    public interface IBindableResource
+    {
+    }
+
     /// <summary>
     /// A device resource used to store arbitrary image data in a specific format.
     /// See <see cref="TextureDescription"/>.
     /// </summary>
     /// <seealso cref="BindableResource"/>
-    public abstract class Texture : DeviceResource, MappableResource, IDisposable
+    public abstract class Texture : DeviceResource, MappableResource, IDisposable, IBindableResource
     {
+        /// <summary>
+        /// The format of individual texture elements stored in this instance.
+        /// </summary>
+        public virtual PixelFormat Format { get; protected set; }
+
+        /// <summary>
+        /// The total width of this instance, in texels.
+        /// </summary>
+        public virtual uint Width { get; protected set; }
+
+        /// <summary>
+        /// The total height of this instance, in texels.
+        /// </summary>
+        public virtual uint Height { get; protected set; }
+
+        /// <summary>
+        /// The total depth of this instance, in texels.
+        /// </summary>
+        public virtual uint Depth { get; protected set; }
+
+        /// <summary>
+        /// The total number of mipmap levels in this instance.
+        /// </summary>
+        public virtual uint MipLevels { get; protected set; }
+
+        /// <summary>
+        /// The total number of array layers in this instance.
+        /// </summary>
+        public virtual uint ArrayLayers { get; protected set; }
+
+        /// <summary>
+        /// The usage flags given when this instance was created. This property controls how this instance is permitted to be
+        /// used, and it is an error to attempt to use the Texture outside of those contexts.
+        /// </summary>
+        public virtual TextureUsage Usage { get; protected set; }
+
+        /// <summary>
+        /// The <see cref="TextureType"/> of this instance.
+        /// </summary>
+        public virtual TextureType Type { get; protected set; }
+
+        /// <summary>
+        /// The number of samples in this instance. If this returns any value other than <see cref="TextureSampleCount.Count1"/>,
+        /// then this instance is a multipsample texture.
+        /// </summary>
+        public virtual TextureSampleCount SampleCount { get; protected set; }
+
+        /// <summary>
+        /// A bool indicating whether this instance has been disposed.
+        /// </summary>
+        public abstract bool IsDisposed { get; }
+
+        /// <summary>
+        ///     A string identifying this instance. Can be used to differentiate between objects in graphics debuggers and other
+        ///     tools.
+        /// </summary>
+        public abstract string? Name { get; set; }
+
         private readonly object _fullTextureViewLock = new();
         private TextureView? _fullTextureView;
 
@@ -23,61 +85,6 @@ namespace Veldrid
         {
             return arrayLayer * MipLevels + mipLevel;
         }
-
-        /// <summary>
-        /// The format of individual texture elements stored in this instance.
-        /// </summary>
-        public PixelFormat Format { get; protected set; }
-
-        /// <summary>
-        /// The total width of this instance, in texels.
-        /// </summary>
-        public uint Width { get; protected set; }
-
-        /// <summary>
-        /// The total height of this instance, in texels.
-        /// </summary>
-        public uint Height { get; protected set; }
-
-        /// <summary>
-        /// The total depth of this instance, in texels.
-        /// </summary>
-        public uint Depth { get; protected set; }
-
-        /// <summary>
-        /// The total number of mipmap levels in this instance.
-        /// </summary>
-        public uint MipLevels { get; protected set; }
-
-        /// <summary>
-        /// The total number of array layers in this instance.
-        /// </summary>
-        public uint ArrayLayers { get; protected set; }
-
-        /// <summary>
-        /// The usage flags given when this instance was created. This property controls how this instance is permitted to be
-        /// used, and it is an error to attempt to use the Texture outside of those contexts.
-        /// </summary>
-        public TextureUsage Usage { get; protected set; }
-
-        /// <summary>
-        /// The <see cref="TextureType"/> of this instance.
-        /// </summary>
-        public TextureType Type { get; protected set; }
-
-        /// <summary>
-        /// The number of samples in this instance. If this returns any value other than <see cref="TextureSampleCount.Count1"/>,
-        /// then this instance is a multipsample texture.
-        /// </summary>
-        public TextureSampleCount SampleCount { get; protected set; }
-
-        /// <inheritdoc/>
-        public abstract string? Name { get; set; }
-
-        /// <summary>
-        /// A bool indicating whether this instance has been disposed.
-        /// </summary>
-        public abstract bool IsDisposed { get; }
 
         internal virtual void GetSubresourceLayout(uint mipLevel, uint arrayLevel, out uint rowPitch, out uint depthPitch)
         {

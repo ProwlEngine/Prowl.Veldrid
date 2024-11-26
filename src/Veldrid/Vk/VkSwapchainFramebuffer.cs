@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
+
 using TerraFX.Interop.Vulkan;
+
 using static TerraFX.Interop.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
 
@@ -53,7 +56,7 @@ namespace Veldrid.Vulkan
         internal void SetImageIndex(uint index)
         {
             _currentImageIndex = index;
-            _colorTargets = _scFramebuffers[_currentImageIndex].ColorTargetArray;
+            ColorTargets = _scFramebuffers[_currentImageIndex].ColorTargetArray.ToList();
         }
 
         internal void SetNewSwapchain(
@@ -90,8 +93,8 @@ namespace Veldrid.Vulkan
 
         private void DestroySwapchainFramebuffers()
         {
-            _depthTarget?.Target.Dispose();
-            _depthTarget = default;
+            DepthTarget?.Target.Dispose();
+            DepthTarget = default;
 
             foreach (ref VkFramebuffer fb in _scFramebuffers.AsSpan())
             {
@@ -111,7 +114,7 @@ namespace Veldrid.Vulkan
         {
             if (_depthFormat.HasValue)
             {
-                Debug.Assert(!_depthTarget.HasValue);
+                Debug.Assert(!DepthTarget.HasValue);
 
                 VkTexture depthTexture = (VkTexture)_gd.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
                     Math.Max(1, _scExtent.width),
@@ -120,7 +123,7 @@ namespace Veldrid.Vulkan
                     1,
                     _depthFormat.Value,
                     TextureUsage.DepthStencil));
-                _depthTarget = new FramebufferAttachment(depthTexture, 0);
+                DepthTarget = new FramebufferAttachment(depthTexture, 0);
             }
         }
 
@@ -146,7 +149,7 @@ namespace Veldrid.Vulkan
                     _scImages[i],
                     true,
                     true);
-                FramebufferDescription desc = new(_depthTarget?.Target, colorTex);
+                FramebufferDescription desc = new(DepthTarget?.Target, colorTex);
                 VkFramebuffer fb = new(_gd, desc, true);
                 _scFramebuffers[i] = fb;
             }
@@ -156,7 +159,7 @@ namespace Veldrid.Vulkan
 
         public override void TransitionToIntermediateLayout(VkCommandBuffer cb)
         {
-            foreach (ref readonly FramebufferAttachment ca in ColorTargets)
+            foreach (FramebufferAttachment ca in ColorTargets)
             {
                 VkTexture vkTex = Util.AssertSubtype<Texture, VkTexture>(ca.Target);
                 vkTex.SetImageLayout(0, ca.ArrayLayer, VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -169,7 +172,7 @@ namespace Veldrid.Vulkan
                 ? VkImageLayout.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
                 : VkImageLayout.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-            foreach (ref readonly FramebufferAttachment ca in ColorTargets)
+            foreach (FramebufferAttachment ca in ColorTargets)
             {
                 VkTexture vkTex = Util.AssertSubtype<Texture, VkTexture>(ca.Target);
                 vkTex.TransitionImageLayout(cb, 0, 1, ca.ArrayLayer, 1, layout);
