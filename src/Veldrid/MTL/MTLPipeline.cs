@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+
 using Veldrid.MetalBindings;
 
 namespace Veldrid.MTL
@@ -40,7 +41,7 @@ namespace Veldrid.MTL
             for (int i = 0; i < ResourceLayouts.Length; i++)
             {
                 ResourceLayouts[i] = Util.AssertSubtype<ResourceLayout, MTLResourceLayout>(description.ResourceLayouts[i]);
-                NonVertexBufferCount += ResourceLayouts[i].LastBufferIndex;
+                NonVertexBufferCount += ResourceLayouts[i].BufferCount;
             }
             ResourceBindingModel = description.ResourceBindingModel ?? gd.ResourceBindingModel;
 

@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+
 using TerraFX.Interop.Vulkan;
+
 using static TerraFX.Interop.Vulkan.VkAttachmentLoadOp;
 using static TerraFX.Interop.Vulkan.VkAttachmentStoreOp;
 using static TerraFX.Interop.Vulkan.VkImageLayout;
 using static TerraFX.Interop.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
+
 using VulkanFramebuffer = TerraFX.Interop.Vulkan.VkFramebuffer;
 
 namespace Veldrid.Vulkan
@@ -35,7 +38,7 @@ namespace Veldrid.Vulkan
 
             StackList<VkAttachmentDescription> attachments = new();
 
-            ReadOnlySpan<FramebufferAttachment> colorTargets = ColorTargets;
+            ReadOnlySpan<FramebufferAttachment> colorTargets = ColorTargets.ToArray();
             int colorAttachmentCount = colorTargets.Length;
 
             ReadOnlySpan<FramebufferAttachmentDescription> colorTargetDescs = description.ColorTargets.AsSpan(0, colorAttachmentCount);
@@ -292,7 +295,7 @@ namespace Veldrid.Vulkan
 
         public override void TransitionToIntermediateLayout(VkCommandBuffer cb)
         {
-            foreach (ref readonly FramebufferAttachment ca in ColorTargets)
+            foreach (FramebufferAttachment ca in ColorTargets)
             {
                 VkTexture vkTex = Util.AssertSubtype<Texture, VkTexture>(ca.Target);
                 vkTex.SetImageLayout(ca.MipLevel, ca.ArrayLayer, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -316,7 +319,7 @@ namespace Veldrid.Vulkan
                 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
                 : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-            foreach (ref readonly FramebufferAttachment ca in ColorTargets)
+            foreach (FramebufferAttachment ca in ColorTargets)
             {
                 VkTexture vkTex = Util.AssertSubtype<Texture, VkTexture>(ca.Target);
                 if ((vkTex.Usage & TextureUsage.Sampled) != 0 ||

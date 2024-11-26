@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+
 using static Veldrid.MetalBindings.ObjectiveCRuntime;
 
 namespace Veldrid.MetalBindings
@@ -22,9 +23,18 @@ namespace Veldrid.MetalBindings
                 offset,
                 index);
 
+        public void setVertexBufferOffset(UIntPtr offset, UIntPtr index)
+            => objc_msgSend(NativePtr, sel_setVertexBufferOffset,
+                offset,
+                index);
+
         public void setFragmentBuffer(MTLBuffer buffer, UIntPtr offset, UIntPtr index)
             => objc_msgSend(NativePtr, sel_setFragmentBuffer,
                 buffer.NativePtr,
+                offset,
+                index);
+        public void setFragmentBufferOffset(UIntPtr offset, UIntPtr index)
+            => objc_msgSend(NativePtr, sel_setFragmentBufferOffset,
                 offset,
                 index);
 
@@ -144,7 +154,9 @@ namespace Veldrid.MetalBindings
 
         private static readonly Selector sel_setRenderPipelineState = "setRenderPipelineState:"u8;
         private static readonly Selector sel_setVertexBuffer = "setVertexBuffer:offset:atIndex:"u8;
+        private static readonly Selector sel_setVertexBufferOffset = "setVertexBufferOffset:atIndex:"u8;
         private static readonly Selector sel_setFragmentBuffer = "setFragmentBuffer:offset:atIndex:"u8;
+        private static readonly Selector sel_setFragmentBufferOffset = "setFragmentBufferOffset:atIndex:"u8;
         private static readonly Selector sel_setVertexTexture = "setVertexTexture:atIndex:"u8;
         private static readonly Selector sel_setFragmentTexture = "setFragmentTexture:atIndex:"u8;
         private static readonly Selector sel_setVertexSamplerState = "setVertexSamplerState:atIndex:"u8;

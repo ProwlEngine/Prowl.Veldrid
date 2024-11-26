@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+
 using Veldrid.MetalBindings;
 
 namespace Veldrid.MTL
@@ -122,7 +123,7 @@ namespace Veldrid.MTL
                 }
             }
 
-            if (swapchainDesc != null)
+            if (swapchainDesc.HasValue)
             {
                 SwapchainDescription desc = swapchainDesc.Value;
                 MainSwapchain = new MTLSwapchain(this, desc);

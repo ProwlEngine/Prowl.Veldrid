@@ -55,7 +55,7 @@ namespace Veldrid.OpenGL
             glBindFramebuffer(FramebufferTarget.Framebuffer, _framebuffer);
             CheckLastError();
 
-            ReadOnlySpan<FramebufferAttachment> colorTargets = ColorTargets;
+            ReadOnlySpan<FramebufferAttachment> colorTargets = ColorTargets.ToArray();
             uint colorCount = (uint)colorTargets.Length;
             if (colorCount > 0)
             {

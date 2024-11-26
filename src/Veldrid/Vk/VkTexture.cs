@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+
 using TerraFX.Interop.Vulkan;
+
 using static TerraFX.Interop.Vulkan.Vulkan;
 using static Veldrid.Vulkan.VulkanUtil;
+
 using VulkanBuffer = TerraFX.Interop.Vulkan.VkBuffer;
 
 namespace Veldrid.Vulkan
