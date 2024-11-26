@@ -108,21 +108,26 @@ using Veldrid.MetalBindings;
 
 namespace Veldrid.MTL
 {
-    internal class MTLSwapchainFramebuffer : MTLFramebuffer
+    internal class MTLSwapchainFramebuffer : MTLFramebufferBase
     {
-        // public override uint Width => colorTexture == null ? colorTexture!.Width : 0;
-        // public override uint Height => colorTexture == null ? colorTexture!.Height : 0;
+        public override uint Width => colorTexture == null ? colorTexture!.Width : 0;
+        public override uint Height => colorTexture == null ? colorTexture!.Height : 0;
 
-        // public override OutputDescription OutputDescription { get; }
+        public override OutputDescription OutputDescription { get; protected set; }
 
         public override List<FramebufferAttachment> ColorTargets => colorTargets.ToList();
         public override FramebufferAttachment? DepthTarget => depthTarget;
+
+        public override bool IsRenderable => throw new NotImplementedException();
+
+        public override bool IsDisposed => throw new NotImplementedException();
+
         private readonly MTLGraphicsDevice gd;
         private readonly MTLSwapchain parentSwapchain;
         private readonly PixelFormat colorFormat;
 
         private readonly PixelFormat? depthFormat;
-        private readonly MTLTexture? colorTexture;
+        private readonly MTLTexture colorTexture = new MTLTexture();
         private MTLTexture depthTexture;
 
         private readonly FramebufferAttachment[] colorTargets;
@@ -134,7 +139,7 @@ namespace Veldrid.MTL
             PixelFormat? depthFormat,
             PixelFormat colorFormat)
         {
-            colorTexture = new MTLTexture(new TextureDescription(Width, Height, 1, 1, 1, colorFormat, TextureUsage.RenderTarget, TextureType.Texture2D), gd);
+            // colorTexture = new MTLTexture(new TextureDescription(, Height, 1, 1, 1, colorFormat, TextureUsage.RenderTarget, TextureType.Texture2D), gd);
 
             this.gd = gd;
             parentSwapchain = parent;
@@ -160,7 +165,6 @@ namespace Veldrid.MTL
         public override void Dispose()
         {
             depthTexture?.Dispose();
-            base.Dispose();
         }
 
         #endregion
@@ -187,6 +191,11 @@ namespace Veldrid.MTL
                 gd.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
                     width, height, 1, 1, depthFormat.Value, TextureUsage.DepthStencil)));
             depthTarget = new FramebufferAttachment(depthTexture, 0);
+        }
+
+        public override MTLRenderPassDescriptor CreateRenderPassDescriptor()
+        {
+            throw new NotImplementedException();
         }
     }
 }

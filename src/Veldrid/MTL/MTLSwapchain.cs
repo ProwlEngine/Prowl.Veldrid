@@ -106,7 +106,6 @@ namespace Veldrid.MTL
 
             SetSyncToVerticalBlank(_syncToVerticalBlank);
 
-
             framebuffer = new MTLSwapchainFramebuffer(
                 gd,
                 this,
